@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { Network, Users } from "lucide-react" // Import Users icon
+import { Network, Users, Layers } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 export function SuperAdminNav() {
@@ -18,6 +18,11 @@ export function SuperAdminNav() {
       title: "Usuários",
       href: "/super-admin/users",
       icon: Users,
+    },
+    {
+      title: "Planos",
+      href: "/super-admin/planos",
+      icon: Layers,
     },
   ]
 
