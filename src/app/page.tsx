@@ -1,3 +1,6 @@
+"use client";
+
+import { useState } from "react";
 import { ContactForm } from "@/components/ContactForm";
 import { Footer } from "@/components/footer";
 import { Header } from "@/components/header";
@@ -8,11 +11,30 @@ import { Card } from "@/components/ui/card";
 import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/components/ui/pagination";
 import { Diamond, Eye, HeartHandshake, Home as HomeIcon, KeyRound, Phone, Mail, MapPin, Clock, Handshake, Lightbulb } from "lucide-react";
 import Image from "next/image";
+import { PropertyDetailModal } from "@/components/PropertyDetailModal";
+
+interface Property {
+  imageUrls: string[];
+  isFeatured?: boolean;
+  location: string;
+  title: string;
+  type: 'sale' | 'rent';
+  price: number;
+  bedrooms: number;
+  bathrooms: number;
+  area: number;
+  description: string;
+  characteristics: string[];
+  amenities: string[];
+  address: string;
+}
 
 export default function Home() {
-  const properties = [
+  const [selectedProperty, setSelectedProperty] = useState<Property | null>(null);
+
+  const properties: Property[] = [
     {
-      imageUrl: '/property-1.jpg',
+      imageUrls: ['/property-1.jpg', '/about-image.jpg'],
       isFeatured: true,
       location: 'Casa • Jardim Europa',
       title: 'Casa Moderna com Piscina',
@@ -21,9 +43,13 @@ export default function Home() {
       bedrooms: 4,
       bathrooms: 3,
       area: 280,
+      description: 'Uma casa moderna e espaçosa, perfeita para a sua família. Com acabamentos de alta qualidade, área de lazer completa com piscina e churrasqueira.',
+      characteristics: ['Piscina privativa', 'Área gourmet', 'Garagem para 4 carros', 'Suíte master com closet'],
+      amenities: ['Ar condicionado', 'Móveis planejados', 'Sistema de segurança'],
+      address: 'Rua das Flores, 123 - Jardim Europa, Regente Feijó - SP'
     },
     {
-      imageUrl: '/property-2.jpg',
+      imageUrls: ['/property-2.jpg'],
       isFeatured: true,
       location: 'Apartamento • Centro',
       title: 'Apartamento Luxuoso no Centro',
@@ -32,9 +58,13 @@ export default function Home() {
       bedrooms: 3,
       bathrooms: 2,
       area: 120,
+      description: 'Apartamento de alto padrão no coração da cidade. Oferece conforto, segurança e uma vista incrível. Próximo a comércios, escolas e hospitais.',
+      characteristics: ['Varanda gourmet', 'Andar alto', '2 vagas de garagem', 'Portaria 24h'],
+      amenities: ['Academia', 'Salão de festas', 'Piscina no condomínio'],
+      address: 'Av. Principal, 456 - Centro, Presidente Prudente - SP'
     },
     {
-      imageUrl: '/property-3.jpg',
+      imageUrls: ['/property-3.jpg'],
       isFeatured: true,
       location: 'Terreno • Centro Comercial',
       title: 'Terreno Comercial Premium',
@@ -43,9 +73,13 @@ export default function Home() {
       bedrooms: 0,
       bathrooms: 0,
       area: 800,
+      description: 'Terreno comercial em localização estratégica, ideal para construção de shopping, supermercado ou complexo comercial. Grande potencial de valorização.',
+      characteristics: ['Localização estratégica', 'Topografia plana', 'Frente para avenida', 'Infraestrutura completa'],
+      amenities: ['Água', 'Energia', 'Esgoto', 'Iluminação pública', 'Asfalto'],
+      address: 'Av. Comercial, 200 - Centro Comercial, Regente Feijó - SP'
     },
     {
-      imageUrl: '/property-4.jpg',
+      imageUrls: ['/property-4.jpg'],
       isFeatured: false,
       location: 'Apartamento • Jardim América',
       title: 'Apartamento Duplex',
@@ -54,6 +88,10 @@ export default function Home() {
       bedrooms: 4,
       bathrooms: 3,
       area: 180,
+      description: 'Lindo apartamento duplex com design moderno e funcional. Ampla área social e suítes confortáveis. Perfeito para quem busca espaço e sofisticação.',
+      characteristics: ['Pé direito duplo', 'Terraço privativo', 'Vista panorâmica', 'Acabamento de luxo'],
+      amenities: ['Elevador privativo', 'Área de lazer completa'],
+      address: 'Rua das Palmeiras, 789 - Jardim América, Álvares Machado - SP'
     },
   ];
 
@@ -137,7 +175,9 @@ export default function Home() {
             </div>
             <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
               {properties.map((property, index) => (
-                <PropertyCard key={index} {...property} />
+                <div key={index} onClick={() => setSelectedProperty(property)} className="cursor-pointer">
+                  <PropertyCard {...property} imageUrl={property.imageUrls[0]} />
+                </div>
               ))}
             </div>
             <div className="mt-12">
@@ -228,8 +268,16 @@ export default function Home() {
                     <p className="text-muted-foreground">Sábado: 9h às 13h</p>
                   </div>
                 </div>
-                <div className="w-full h-64 bg-muted rounded-lg flex items-center justify-center">
-                  <p className="text-muted-foreground">Carregando mapa...</p>
+                <div className="w-full h-64 bg-muted rounded-lg overflow-hidden">
+                  <iframe
+                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3689.871899503783!2d-51.41583102380199!3d-22.22191601319882!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x9493f15636350549%3A0x1d380c44c422658a!2sJR%20Im%C3%B3veis!5e0!3m2!1sen!2sus"
+                    width="100%"
+                    height="100%"
+                    style={{ border: 0 }}
+                    allowFullScreen={true}
+                    loading="lazy"
+                    referrerPolicy="no-referrer-when-downgrade"
+                  ></iframe>
                 </div>
               </div>
             </div>
@@ -237,6 +285,10 @@ export default function Home() {
         </section>
       </main>
       <Footer />
+      <PropertyDetailModal 
+        property={selectedProperty}
+        onClose={() => setSelectedProperty(null)}
+      />
     </div>
   );
 }
