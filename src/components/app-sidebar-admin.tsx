@@ -52,9 +52,10 @@ export function AppSidebarAdmin() {
   }
 
   return (
-    <Sidebar collapsible="icon" side="left" variant="sidebar" className="rounded-xl m-2">
+    <Sidebar collapsible="icon" side="left" variant="sidebar">
+      {/* Workspace card */}
       <SidebarHeader>
-        <div className="flex items-center justify-between rounded-md px-3 py-2 hover:bg-sidebar-accent">
+        <div className="flex items-center justify-between rounded-lg border px-3 py-2">
           <div className="flex items-center gap-3">
             <div className="flex h-9 w-9 items-center justify-center rounded-md bg-primary/10">
               <Laptop2 className="h-5 w-5 text-primary" />
@@ -79,7 +80,7 @@ export function AppSidebarAdmin() {
                     <Link href={link.href}>
                       <link.icon className="h-4 w-4" />
                       <span>{link.title}</span>
-                      <ChevronRight className="ml-auto h-4 w-4 opacity-50 group-data-[collapsible=icon]/sidebar:hidden" />
+                      <ChevronRight className="ml-auto h-4 w-4 text-muted-foreground/70 group-data-[collapsible=icon]/sidebar:hidden" />
                     </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -89,33 +90,27 @@ export function AppSidebarAdmin() {
         </SidebarGroup>
       </SidebarContent>
 
+      {/* Footer profile card */}
       <SidebarFooter>
-        <SidebarMenu>
-          <SidebarMenuItem>
-            <SidebarMenuButton className="gap-3">
-              <span className="relative h-7 w-7 overflow-hidden rounded-full">
-                <Image
-                  src="/vercel.svg"
-                  alt="avatar"
-                  fill
-                  sizes="28px"
-                  className="object-cover"
-                />
-              </span>
-              <span className="min-w-0 group-data-[collapsible=icon]/sidebar:hidden">
-                <span className="block text-sm font-medium leading-tight truncate">Usuário</span>
-                <span className="block text-xs text-muted-foreground truncate">m@example.com</span>
-              </span>
-              <ChevronDown className="ml-auto h-4 w-4 text-muted-foreground group-data-[collapsible=icon]/sidebar:hidden" />
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-          <SidebarMenuItem>
-            <SidebarMenuButton onClick={handleLogout}>
-              <LogOut className="h-4 w-4" />
-              <span>Sair</span>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-        </SidebarMenu>
+        <div className="rounded-lg border p-2">
+          <div className="flex items-center gap-3 px-1">
+            <span className="relative h-8 w-8 overflow-hidden rounded-full">
+              <Image src="/vercel.svg" alt="avatar" fill sizes="32px" className="object-cover" />
+            </span>
+            <div className="min-w-0 group-data-[collapsible=icon]/sidebar:hidden">
+              <p className="text-sm font-medium leading-tight truncate">Usuário</p>
+              <p className="text-xs text-muted-foreground truncate">m@example.com</p>
+            </div>
+          </div>
+          <div className="mt-2 group-data-[collapsible=icon]/sidebar:hidden">
+            <button
+              className="w-full rounded-md border px-2 py-1.5 text-sm hover:bg-accent"
+              onClick={handleLogout}
+            >
+              Sair
+            </button>
+          </div>
+        </div>
       </SidebarFooter>
 
       <SidebarRail />

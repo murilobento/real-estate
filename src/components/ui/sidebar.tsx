@@ -19,7 +19,8 @@ const SidebarContext = React.createContext<SidebarContextType | null>(null)
 const SIDEBAR_COOKIE_NAME = "sidebar_state"
 const SIDEBAR_COOKIE_MAX_AGE = 60 * 60 * 24 * 365
 const SIDEBAR_KEYBOARD_SHORTCUT = "b"
-const SIDEBAR_WIDTH = "16rem"
+const SIDEBAR_WIDTH = "16rem" // 256px
+const SIDEBAR_WIDTH_COLLAPSED = "4rem" // 64px
 const SIDEBAR_WIDTH_MOBILE = "18rem"
 
 export function SidebarProvider({
@@ -36,6 +37,7 @@ export function SidebarProvider({
   style?: React.CSSProperties & {
     ["--sidebar-width"]?: string
     ["--sidebar-width-mobile"]?: string
+    ["--sidebar-width-collapsed"]?: string
   }
 }) {
   const [openMobile, setOpenMobile] = React.useState(false)
@@ -77,27 +79,21 @@ export function SidebarProvider({
     }
     window.addEventListener("keydown", onKey)
     return () => window.removeEventListener("keydown", onKey)
-  }, [open, openMobile, isMobile])
+  }, [open])
 
   const setOpen = React.useCallback(
     (value: boolean | ((value: boolean) => boolean)) => {
       const openState = typeof value === "function" ? value(open) : value
-      if (onOpenChange) {
-        onOpenChange(openState)
-      } else {
-        _setOpen(openState)
-      }
+      if (onOpenChange) onOpenChange(openState)
+      else _setOpen(openState)
       document.cookie = `${SIDEBAR_COOKIE_NAME}=${openState}; path=/; max-age=${SIDEBAR_COOKIE_MAX_AGE}`
     },
     [onOpenChange, open]
   )
 
   const toggleSidebar = React.useCallback(() => {
-    if (isMobile) {
-      setOpenMobile((v) => !v)
-    } else {
-      setOpen((v) => !v)
-    }
+    if (isMobile) setOpenMobile((v) => !v)
+    else setOpen((v) => !v)
   }, [isMobile, setOpen])
 
   const state: SidebarContextType = {
@@ -119,6 +115,8 @@ export function SidebarProvider({
             "--sidebar-width": style?.["--sidebar-width"] ?? SIDEBAR_WIDTH,
             "--sidebar-width-mobile":
               style?.["--sidebar-width-mobile"] ?? SIDEBAR_WIDTH_MOBILE,
+            "--sidebar-width-collapsed":
+              style?.["--sidebar-width-collapsed"] ?? SIDEBAR_WIDTH_COLLAPSED,
           } as React.CSSProperties
         }
         className="relative"
@@ -157,28 +155,24 @@ export const Sidebar = React.forwardRef<HTMLDivElement, SidebarProps>(
         data-side={side}
         data-state={isOpen ? "open" : "closed"}
         className={cn(
-          "group/sidebar fixed inset-y-0 z-40 bg-sidebar text-sidebar-foreground transition-[width,transform] ease-in-out",
-          // card-like
-          "m-2 rounded-xl border border-sidebar-border shadow-sm",
-          // side position
+          // container
+          "group/sidebar fixed inset-y-0 z-40 transition-[width,transform] ease-in-out",
+          "m-2 rounded-xl border bg-white text-sidebar-foreground shadow-sm",
+          // side
           side === "left" ? "left-0" : "right-0",
-          // variant styles (we keep 'sidebar' appearance)
-          variant === "floating" && "shadow-lg",
-          // widths
+          // width & offcanvas
           isMobile
             ? [
-                "w-[--sidebar-width-mobile] translate-x-0",
+                "w-[--sidebar-width-mobile]",
                 isOpen ? "translate-x-0" : side === "left" ? "-translate-x-full" : "translate-x-full",
               ]
             : [
                 collapsible === "icon"
                   ? isOpen
                     ? "w-[--sidebar-width]"
-                    : "w-16"
+                    : "w-[--sidebar-width-collapsed]"
                   : "w-[--sidebar-width]",
               ],
-          // right separator/border to content
-          "after:pointer-events-none after:absolute after:inset-y-2 after:-right-2 after:w-px after:bg-sidebar-border",
           className
         )}
         {...props}
@@ -191,7 +185,7 @@ export function SidebarHeader({ className, ...props }: React.HTMLAttributes<HTML
   return (
     <div
       className={cn(
-        "sticky top-0 z-10 bg-sidebar/95 px-2 py-2",
+        "sticky top-0 z-10 bg-white/95 px-2 py-2",
         className
       )}
       {...props}
@@ -203,7 +197,7 @@ export function SidebarFooter({ className, ...props }: React.HTMLAttributes<HTML
   return (
     <div
       className={cn(
-        "sticky bottom-0 z-10 bg-sidebar/95 px-2 py-2",
+        "sticky bottom-0 z-10 bg-white/95 px-2 py-2",
         className
       )}
       {...props}
@@ -216,7 +210,7 @@ export function SidebarContent({ className, ...props }: React.HTMLAttributes<HTM
 }
 
 export function SidebarSeparator({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) {
-  return <div className={cn("my-2 h-px bg-sidebar-border", className)} {...props} />
+  return <div className={cn("my-2 h-px bg-sidebar-border/70", className)} {...props} />
 }
 
 export function SidebarGroup({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) {
@@ -261,8 +255,9 @@ export function SidebarMenuButton({
     <Comp
       data-active={isActive ? "true" : "false"}
       className={cn(
-        "group/menu-button flex w-full items-center gap-2 rounded-md px-2.5 py-2 text-sm hover:bg-sidebar-accent hover:text-sidebar-accent-foreground data-[active=true]:bg-sidebar-accent data-[active=true]:text-sidebar-accent-foreground",
-        "transition-colors",
+        "group/menu-button flex w-full items-center gap-2 rounded-md px-2.5 py-2 text-sm",
+        "hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
+        "data-[active=true]:bg-sidebar-accent data-[active=true]:text-sidebar-accent-foreground",
         className
       )}
       {...props}
@@ -301,7 +296,7 @@ export function SidebarTrigger({
       type="button"
       onClick={toggleSidebar}
       className={cn(
-        "inline-flex h-9 w-9 items-center justify-center rounded-md border bg-background text-foreground hover:bg-accent hover:text-accent-foreground",
+        "inline-flex h-9 w-9 items-center justify-center rounded-md border bg-white text-foreground hover:bg-accent hover:text-accent-foreground",
         className
       )}
       {...props}
@@ -334,11 +329,7 @@ export function SidebarInset({ className, ...props }: React.HTMLAttributes<HTMLD
     <div
       className={cn(
         "transition-[margin] ease-in-out",
-        isMobile
-          ? "ml-0"
-          : isOpen
-          ? "ml-[--sidebar-width]"
-          : "ml-16",
+        isMobile ? "ml-0" : isOpen ? "ml-[--sidebar-width]" : "ml-[--sidebar-width-collapsed]",
         className
       )}
       {...props}
