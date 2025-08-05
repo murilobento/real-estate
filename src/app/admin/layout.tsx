@@ -43,10 +43,11 @@ export default function AdminLayout({
         </Link>
       </div>
       <Separator />
-      <div onClick={() => setOpen(false)}>
+      {/* Fecha o Sheet ao clicar em qualquer item da Nav */}
+      <div onClick={() => setOpen(false)} className="flex-1">
         <Nav />
       </div>
-      {/* Botão Sair também na sidebar (desktop e mobile via Sheet) */}
+      {/* Botão Sair visível tanto no mobile (Sheet) quanto no desktop (sidebar) */}
       <div className="mt-auto p-3">
         <Button variant="outline" className="w-full flex items-center gap-2" onClick={handleLogout}>
           <LogOut className="h-4 w-4" />
@@ -72,7 +73,9 @@ export default function AdminLayout({
                 <SheetTitle>Menu de navegação do Admin</SheetTitle>
                 <SheetDescription>Links e opções do painel do Admin</SheetDescription>
               </SheetHeader>
-              {nav}
+              <div className="flex flex-col h-full">
+                {nav}
+              </div>
             </SheetContent>
           </Sheet>
           <div className="w-full flex-1">
@@ -110,13 +113,11 @@ export default function AdminLayout({
             </a>
           </div>
           <Separator />
-          <Nav />
+          <div className="flex-1">
+            <Nav />
+          </div>
           <div className="mt-auto p-3">
-            <Button variant="outline" className="w-full flex items-center gap-2" onClick={async () => {
-              await supabase.auth.signOut();
-              router.push("/template-site");
-              router.refresh();
-            }}>
+            <Button variant="outline" className="w-full flex items-center gap-2" onClick={handleLogout}>
               <LogOut className="h-4 w-4" />
               Sair
             </Button>
