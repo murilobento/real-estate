@@ -11,7 +11,7 @@ const formSchema = z.object({
 });
 
 export async function createImobiliaria(values: z.infer<typeof formSchema>) {
-  const supabase = createClient();
+  const supabase = await createClient();
   const supabaseAdmin = createAdminClient();
   const validatedFields = formSchema.safeParse(values);
 
@@ -58,7 +58,7 @@ export async function createImobiliaria(values: z.infer<typeof formSchema>) {
 }
 
 export async function updateImobiliaria(id: string, values: z.infer<typeof formSchema>) {
-  const supabase = createClient();
+  const supabase = await createClient();
   const validatedFields = formSchema.safeParse(values);
 
   if (!validatedFields.success) {
@@ -81,7 +81,7 @@ export async function updateImobiliaria(id: string, values: z.infer<typeof formS
 }
 
 export async function deleteImobiliaria(id: string) {
-  const supabase = createClient();
+  const supabase = await createClient();
 
   // Desassocia usuários da imobiliária antes de excluí-la
   const { error: updateError } = await supabase

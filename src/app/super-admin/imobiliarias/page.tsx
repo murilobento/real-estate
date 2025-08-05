@@ -15,7 +15,7 @@ import {
 import { ImobiliariaRowActions } from "./imobiliaria-row-actions";
 
 export default async function ImobiliariasPage() {
-  const supabase = createClient();
+  const supabase = await createClient();
   const { data: imobiliarias } = await supabase
     .from("imobiliarias")
     .select("*")

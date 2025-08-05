@@ -13,7 +13,7 @@ const userFormSchema = z.object({
 });
 
 export default async function SuperAdminUsersPage() {
-  const supabase = createClient();
+  const supabase = await createClient();
 
   const { data: users, error: usersError } = await supabase
     .from("profiles")
@@ -33,7 +33,7 @@ export default async function SuperAdminUsersPage() {
 
   async function assignImobiliaria(userId: string, imobiliariaId: string | null) {
     "use server";
-    const supabase = createClient();
+    const supabase = await createClient();
     const { error } = await supabase
       .from("profiles")
       .update({ imobiliaria_id: imobiliariaId })
@@ -60,7 +60,7 @@ export default async function SuperAdminUsersPage() {
     const { error } = await supabaseAdmin.auth.admin.createUser({
       email,
       password,
-      email_confirm: true, // O e-mail já é confirmado automaticamente
+      email_confirm: true,
       user_metadata: {
         first_name: firstName,
         last_name: lastName,
