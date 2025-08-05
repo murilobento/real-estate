@@ -190,11 +190,11 @@ export default function Home() {
               </p>
             </div>
             <div className="grid lg:grid-cols-2 gap-12">
-              <div className="mx-auto w-full max-w-lg">
-                <h3 className="text-2xl font-bold mb-4">Envie uma Mensagem</h3>
+              <div>
+                <h3 className="text-2xl font-bold mb-4 text-left">Envie uma Mensagem</h3>
                 <ContactForm />
               </div>
-              <div className="space-y-6">
+              <div className="space-y-6 text-left">
                 <div className="flex items-start gap-4">
                   <Phone className="h-6 w-6 text-teal-500 mt-1" />
                   <div>
