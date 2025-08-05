@@ -6,7 +6,7 @@ import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "@/componen
 import { Separator } from "@/components/ui/separator";
 import { SuperAdminNav } from "./nav";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 
 export default function SuperAdminLayout({
@@ -46,11 +46,10 @@ export default function SuperAdminLayout({
               </Button>
             </SheetTrigger>
             <SheetContent side="left" className="flex flex-col p-0">
-              {/* Cabeçalho acessível para o diálogo */}
-              <div className="sr-only" aria-hidden={false}>
-                <h2 id="superadmin-mobile-menu-title">Menu de navegação</h2>
-                <p id="superadmin-mobile-menu-desc">Links e opções do painel do Super Admin</p>
-              </div>
+              <SheetHeader className="sr-only">
+                <SheetTitle>Menu de navegação do Super Admin</SheetTitle>
+                <SheetDescription>Links e opções do painel do Super Admin</SheetDescription>
+              </SheetHeader>
               {nav}
             </SheetContent>
           </Sheet>

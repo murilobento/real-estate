@@ -1,14 +1,13 @@
 "use client";
 
 import * as React from "react";
-import { Building2 } from "lucide-react";
+import { Building2, Menu } from "lucide-react";
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "@/components/ui/resizable";
 import { Separator } from "@/components/ui/separator";
 import { Nav } from "@/components/nav";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
-import { Menu } from "lucide-react";
 
 export default function AdminLayout({
   children,
@@ -47,11 +46,10 @@ export default function AdminLayout({
               </Button>
             </SheetTrigger>
             <SheetContent side="left" className="flex flex-col p-0">
-              {/* Cabeçalho acessível para o diálogo */}
-              <div className="sr-only" aria-hidden={false}>
-                <h2 id="admin-mobile-menu-title">Menu de navegação</h2>
-                <p id="admin-mobile-menu-desc">Links e opções do painel do Admin</p>
-              </div>
+              <SheetHeader className="sr-only">
+                <SheetTitle>Menu de navegação do Admin</SheetTitle>
+                <SheetDescription>Links e opções do painel do Admin</SheetDescription>
+              </SheetHeader>
               {nav}
             </SheetContent>
           </Sheet>

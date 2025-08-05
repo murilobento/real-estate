@@ -2,7 +2,7 @@
 
 import { Menu, MessageCircle } from "lucide-react";
 import { Button } from "./ui/button";
-import { Sheet, SheetContent, SheetTrigger } from "./ui/sheet";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, SheetTrigger } from "./ui/sheet";
 import Link from "next/link";
 
 export const Header = () => {
@@ -50,13 +50,12 @@ export const Header = () => {
                   <span className="sr-only">Toggle Menu</span>
                 </Button>
               </SheetTrigger>
-              <SheetContent side="left" className="pr-0 pt-12">
-                {/* Cabeçalho acessível para o diálogo */}
-                <div className="sr-only" aria-hidden={false}>
-                  <h2 id="site-mobile-menu-title">Menu de navegação</h2>
-                  <p id="site-mobile-menu-desc">Links do site e contato</p>
-                </div>
-                <div className="flex flex-col space-y-4 pl-6">
+              <SheetContent side="left" className="pr-0 pt-4">
+                <SheetHeader className="sr-only">
+                  <SheetTitle>Menu de navegação do site</SheetTitle>
+                  <SheetDescription>Links do site e contato</SheetDescription>
+                </SheetHeader>
+                <div className="flex flex-col space-y-4 pl-6 pt-6">
                   {navLinks.map((link) => (
                     <a
                       key={link.href}
