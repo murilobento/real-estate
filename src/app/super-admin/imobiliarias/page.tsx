@@ -13,6 +13,42 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { ImobiliariaRowActions } from "./imobiliaria-row-actions";
+import { Badge } from "@/components/ui/badge";
+
+function PlanoBadge({ name }: { name?: string | null }) {
+  if (!name) {
+    return <Badge variant="secondary">—</Badge>;
+  }
+
+  const normalized = name.trim().toLowerCase();
+
+  if (normalized === "essencial") {
+    return (
+      <Badge className="bg-yellow-500/90 hover:bg-yellow-600 text-white">
+        Essencial
+      </Badge>
+    );
+  }
+
+  if (normalized === "professional" || normalized === "profissional") {
+    return (
+      <Badge className="bg-blue-500/90 hover:bg-blue-600 text-white">
+        Professional
+      </Badge>
+    );
+  }
+
+  if (normalized === "avançado" || normalized === "avancado") {
+    return (
+      <Badge className="bg-green-500/90 hover:bg-green-600 text-white">
+        Avançado
+      </Badge>
+    );
+  }
+
+  // fallback
+  return <Badge variant="secondary">{name}</Badge>;
+}
 
 export default async function ImobiliariasPage() {
   const supabase = await createClient();
@@ -52,7 +88,9 @@ export default async function ImobiliariasPage() {
                     <TableCell className="font-medium">{imobiliaria.name}</TableCell>
                     <TableCell>{imobiliaria.email_contato}</TableCell>
                     <TableCell className="capitalize">{imobiliaria.status}</TableCell>
-                    <TableCell>{imobiliaria.planos?.name ?? "—"}</TableCell>
+                    <TableCell>
+                      <PlanoBadge name={imobiliaria.planos?.name} />
+                    </TableCell>
                     <TableCell>
                       {new Date(imobiliaria.created_at).toLocaleDateString(
                         "pt-BR",
