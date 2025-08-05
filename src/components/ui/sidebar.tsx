@@ -43,19 +43,27 @@ export function SidebarProvider({
   const [openMobile, setOpenMobile] = React.useState(false)
   const [isMobile, setIsMobile] = React.useState(false)
 
-  const [uncontrolledOpen, _setUncontrolledOpen] = React.useState<boolean>(() => {
-    if (typeof document === "undefined") return true
-    const cookie = document.cookie
-      .split("; ")
-      .find((c) => c.startsWith(`${SIDEBAR_COOKIE}=`))
-      ?.split("=")[1]
-    if (cookie === undefined) return true
-    return cookie === "true"
-  })
+  // Evitar divergência SSR/CSR: não ler cookie durante SSR.
+  // Inicializa fechado e sincroniza no client após montar.
+  // Evitar divergência SSR/CSR: inicie undefined e derive depois do mount
+  const [uncontrolledOpen, _setUncontrolledOpen] = React.useState<boolean | undefined>(undefined)
 
-  const open = typeof controlledOpen === "boolean" ? controlledOpen : uncontrolledOpen
+  // Enquanto undefined (SSR), trate como fechado. Após mount, sincroniza.
+  const open = typeof controlledOpen === "boolean" ? controlledOpen : (uncontrolledOpen ?? false)
 
   React.useEffect(() => {
+    // Sincroniza estado inicial no client para evitar hydration mismatch
+    try {
+      const cookie = document.cookie
+        .split("; ")
+        .find((c) => c.startsWith(`${SIDEBAR_COOKIE}=`))
+        ?.split("=")[1]
+      const initial = cookie === undefined ? true : cookie === "true"
+      _setUncontrolledOpen(initial)
+    } catch {
+      _setUncontrolledOpen(true)
+    }
+
     const onResize = () =>
       setIsMobile(window.matchMedia("(max-width: 768px)").matches)
     onResize()
@@ -149,11 +157,11 @@ export const Sidebar = React.forwardRef<HTMLDivElement, SidebarProps>(
         data-collapsible={collapsible}
         data-state={isOpen ? "open" : "closed"}
         className={cn(
-          // Base do container (tema claro)
-          "group/sidebar fixed inset-y-0 z-40 m-2 rounded-xl border bg-white text-foreground shadow-sm",
+          "group/sidebar fixed inset-y-0 z-40 m-2 rounded-xl border bg-sidebar text-sidebar-foreground shadow-sm",
           "transition-[width,transform] ease-in-out will-change-transform",
+          // layout em coluna para permitir footer no final
+          "flex flex-col",
           side === "left" ? "left-0" : "right-0",
-          // Largura e offcanvas
           isMobile
             ? [
                 "w-[--sidebar-width-mobile]",
@@ -176,18 +184,42 @@ export const Sidebar = React.forwardRef<HTMLDivElement, SidebarProps>(
 
 export function SidebarHeader({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) {
   return (
-    <div className={cn("sticky top-0 z-10 bg-white/95 px-2 py-2", className)} {...props} />
+    <div
+      className={cn(
+        "px-2 py-2 bg-sidebar/95",
+        className
+      )}
+      {...props}
+    />
   )
 }
 
 export function SidebarFooter({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) {
+  // Garantir que o footer sempre apareça no final da sidebar
   return (
-    <div className={cn("sticky bottom-0 z-10 bg-white/95 px-2 py-2", className)} {...props} />
+    <div
+      className={cn(
+        "mt-auto px-2 py-2 bg-sidebar/95",
+        className
+      )}
+      {...props}
+    />
   )
 }
 
 export function SidebarContent({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) {
-  return <div className={cn("h-full overflow-y-auto px-2 py-2", className)} {...props} />
+  // Tornar o conteúdo rolável sem encobrir o Footer: use min-h-0 e flex coluna.
+  return (
+    <div
+      className={cn(
+        // ocupa o espaço disponível e permite que o footer fique visível
+        "flex min-h-0 flex-1 flex-col px-2 py-2",
+        // a área rolável fica interna, não no container raiz
+        className
+      )}
+      {...props}
+    />
+  )
 }
 
 export function SidebarSeparator({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) {
@@ -202,7 +234,10 @@ export function SidebarGroupLabel({ className, ...props }: React.HTMLAttributes<
   return (
     <div
       className={cn(
-        "px-2 py-1 text-xs font-medium text-muted-foreground group-data-[collapsible=icon]/sidebar:hidden",
+        // Removido o hide para que labels/títulos não sumam quando 'state=open'
+        // Só escondemos labels quando a sidebar estiver realmente fechada.
+        "px-2 py-1 text-xs font-medium text-muted-foreground",
+        "group-data-[state=closed]/sidebar:hidden",
         className
       )}
       {...props}
@@ -236,9 +271,16 @@ export function SidebarMenuButton({
     <Comp
       data-active={isActive ? "true" : "false"}
       className={cn(
-        "group/menu-item flex w-full items-center gap-2 rounded-md px-2.5 py-2 text-sm",
-        "hover:bg-accent hover:text-accent-foreground",
-        "data-[active=true]:bg-accent data-[active=true]:text-accent-foreground",
+        "group/menu-item inline-flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm leading-none",
+        "whitespace-nowrap overflow-hidden",
+        "[&>*]:inline-flex [&>*]:items-center [&>*]:gap-2 [&>*]:min-w-0 [&>*]:whitespace-nowrap",
+        "hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
+        "data-[active=true]:bg-sidebar-accent data-[active=true]:text-sidebar-accent-foreground",
+        "[&_svg]:h-4 [&_svg]:w-4 shrink-0",
+        // Mostrar o título quando a sidebar estiver aberta;
+        // esconder apenas quando realmente fechada.
+        "group-data-[state=open]/sidebar:[&_span]:inline",
+        "group-data-[state=closed]/sidebar:[&_span]:hidden",
         className
       )}
       {...props}
@@ -296,6 +338,7 @@ export function SidebarRail({ className, ...props }: React.HTMLAttributes<HTMLDi
       onClick={toggleSidebar}
       className={cn(
         "absolute inset-y-0 -right-2 z-50 hidden w-2 cursor-col-resize rounded-r-md group-data-[collapsible=icon]/sidebar:block",
+        "bg-transparent", // melhora responsividade do hit area sem visual
         className
       )}
       {...props}
@@ -310,7 +353,9 @@ export function SidebarInset({ className, ...props }: React.HTMLAttributes<HTMLD
     <div
       className={cn(
         "transition-[margin] ease-in-out",
+        // Em mobile sempre ocupa 100% de largura e não aplica margem
         isMobile ? "ml-0" : isOpen ? "ml-[--sidebar-width]" : "ml-[--sidebar-width-collapsed]",
+        "pt-0", // evita saltos no topo
         className
       )}
       {...props}

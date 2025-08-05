@@ -1,113 +1,97 @@
-# Plano de Ação - Sistema Multi-tenant para Imobiliárias
+# Imob-System – Multi-tenant para Imobiliárias
 
-Este documento descreve as tarefas necessárias para alinhar o desenvolvimento do sistema com os requisitos definidos no PRD.
+Este projeto é um sistema multi-tenant para imobiliárias, construído com Next.js (App Router), TypeScript, Tailwind e componentes Shadcn/UI. Autenticação, banco de dados e RLS via Supabase.
 
----
+## Principais Tecnologias
+- Next.js (App Router) + TypeScript
+- Tailwind CSS + Shadcn/UI (Radix)
+- React Hook Form + Zod
+- Sonner (toasts)
+- Supabase (auth, DB, RLS)
+- Recharts (gráficos)
 
-### ✅ Concluído / 🚧 Em Andamento
+## Novidades: Sidebar no estilo shadcn-ui-sidebar
+A navegação lateral foi reescrita para seguir fielmente o layout do repositório de referência:
+https://github.com/salimi-my/shadcn-ui-sidebar
 
-- `[x]` Estrutura inicial do projeto com Next.js e Shadcn/UI.
-- `[x]` Autenticação básica com Supabase (Login/Logout).
-- `[x]` Middleware para proteção de rotas (`/admin`, `/super-admin`).
-- `[x]` Layout básico para o painel do Super-Admin.
-- `[x]` Layout básico para o painel do Admin.
-- `[x]` Super-Admin pode visualizar a lista de imobiliárias.
-- `[x]` Super-Admin pode criar imobiliárias (apenas com nome).
-- `[x]` Super-Admin pode visualizar usuários e atribuí-los a imobiliárias.
-- `[x]` Super-Admin pode criar novos usuários.
-- `[x]` Status da Conta: Adicionar campo `status` (`ativo`, `inativo`) na tabela `imobiliarias` e permitir que o Super-Admin altere esse status.
-- `[x]` Criar uma nova tabela `planos` no banco de dados.
+Componentes-base (mantendo os mesmos nomes e API):
+- src/components/ui/sidebar.tsx
+  - SidebarProvider
+  - Sidebar
+  - SidebarHeader / SidebarContent / SidebarFooter
+  - SidebarGroup / SidebarGroupLabel / SidebarGroupContent
+  - SidebarMenu / SidebarMenuItem / SidebarMenuButton
+  - SidebarTrigger / SidebarInset / SidebarRail
+  - Utilitários: SidebarSeparator, SidebarMenuBadge, SidebarMenuSkeleton
 
----
+Sidebars específicas:
+- src/components/app-sidebar-admin.tsx
+- src/components/app-sidebar-super-admin.tsx
 
-### 📋 Próximos Passos
+Comportamento:
+- Larguras: 256px expandido, 64px colapsado, 288px no mobile (off-canvas).
+- Colapso/Expansão: compatível com SidebarTrigger e atalho de teclado (Ctrl/Cmd + B).
+- No mobile, a Sidebar vira off-canvas.
+- Footer com “card” de perfil e opção de sair (logout via Supabase).
+- Labels ocultam quando colapsado; rail de interação presente.
 
-#### Módulo Super-Admin
+Páginas que usam o layout com Sidebar
+- Painel do Super Admin: src/app/super-admin/layout.tsx
+- Painel do Admin: src/app/admin/layout.tsx
+Ambos já utilizam SidebarProvider, Sidebar, SidebarTrigger e SidebarInset conforme o padrão do layout.
 
-**1. Gerenciamento de Imobiliárias (Tenants)**
--   `[x]` **Melhorar Criação:** Adicionar campos `email_contato` e `plano_id` (inicialmente opcional) ao formulário de criação de imobiliária.
--   `[x]` **Automação:** Implementar a criação automática de um usuário **Admin** padrão quando uma nova imobiliária for criada. O sistema deve enviar um e-mail de boas-vindas com um link para definir a senha.
--   `[x]` **Edição:** Criar funcionalidade para o Super-Admin editar as informações de uma imobiliária existente.
--   `[x]` **Status da Conta:** Adicionar um campo `status` (`ativo`, `inativo`) na tabela `imobiliarias` e permitir que o Super-Admin altere esse status.
--   [ ] **Planos de Assinatura:**
-    -   `[x]` Criar uma nova tabela `planos` no banco de dados.
-    -   [ ] Desenvolver uma interface para o Super-Admin criar, editar e visualizar os planos.
+## Rotas principais
+- /                 (Landing)
+- /template-site     (Site público da imobiliária exemplo)
+- /login             (Autenticação Supabase)
+- /admin/...         (Painel do tenant)
+- /super-admin/...   (Painel global)
 
-**2. Gerenciamento de Usuários**
--   [ ] Criar interface para o Super-Admin gerenciar outros usuários Super-Admin (criar, editar, remover).
+## Supabase
+- Cliente browser: src/integrations/supabase/client.ts
+- Cliente server: src/integrations/supabase/server.ts
+- Cliente admin (service role – somente server): src/integrations/supabase/admin.ts
+- Middleware de proteção de rotas: src/middleware.ts
+- Tabelas/PAPs: ver seção “Supabase Context” e AI_RULES.md
 
----
+## Planos (Billing simples)
+- CRUD de planos em /super-admin/planos
+- Server actions em: src/app/super-admin/planos/actions.ts
+- Schema (zod): src/app/super-admin/planos/schema.ts
+- Listagem e visualização: src/app/super-admin/planos/page.tsx
 
-#### Módulo Admin (Imobiliária)
+## Imobiliárias (Tenants)
+- CRUD em /super-admin/imobiliarias
+- Server actions: src/app/super-admin/imobiliarias/actions.ts
+- Convite automático de Admin do tenant via Supabase Admin API.
 
-**1. Dashboard**
--   [ ] Popular o dashboard com dados reais e relevantes para o tenant (ex: total de imóveis, clientes, etc.).
+## Usuários
+- Super Admin: /super-admin/users
+- Atribuição de usuários a imobiliárias e criação de usuários.
 
-**2. Gerenciamento de Equipe**
--   [ ] **Expandir Papéis:** Atualizar o enum `user_role` para incluir papéis como `corretor` e `gerente`.
--   [ ] **Interface de Equipe:** Criar uma página em `/admin/users` onde o Admin possa convidar, visualizar, editar e remover usuários de sua própria imobiliária.
--   [ ] **Atribuição de Papéis:** Permitir que o Admin atribua os papéis (`corretor`, `gerente`) aos membros de sua equipe.
+## Convenções de UI
+- Priorizar componentes em src/components/ui/ (Shadcn).
+- Ícones: lucide-react.
+- Notificações: Sonner (Toaster já incluído em src/app/layout.tsx).
 
-**3. Gerenciamento de Imóveis (`/admin/properties`)**
--   [ ] **Estrutura do Banco:** Criar a tabela `imoveis` com todos os campos necessários (endereço, tipo, quartos, status, etc.) e RLS para isolamento de tenant.
--   [ ] **Formulário de Cadastro:** Desenvolver um formulário completo para adicionar/editar imóveis.
--   [ ] **Upload de Mídia:** Integrar com o Supabase Storage para upload de múltiplas fotos e vídeos.
--   [ ] **Listagem de Imóveis:** Criar a página que lista todos os imóveis do tenant, com opções de filtro e busca.
--   [ ] **Vincular Corretor:** Permitir associar um ou mais corretores a um imóvel.
+## Desenvolvimento
+- Tailwind config: tailwind.config.ts
+- Estilos globais: src/app/globals.css
+- Utilitários: src/lib/utils.ts
+- Hooks: src/hooks/
 
-**4. Gerenciamento de Clientes (`/admin/clients`)**
--   [ ] **Estrutura do Banco:** Criar a tabela `clientes` com RLS.
--   [ ] **Interface de Cadastro:** Desenvolver formulário para adicionar/editar clientes.
--   [ ] **Listagem e Histórico:** Criar a página de listagem de clientes e uma visão detalhada com histórico de interações.
+## Dicas de Uso da Sidebar
+- Use <SidebarProvider> ao redor do layout.
+- Em layouts, utilize <Sidebar> e <SidebarInset> para estruturar a página.
+- SidebarTrigger nos headers para colapsar/expandir.
+- Ajuste de rótulos/ícones nos arquivos app-sidebar-*.tsx; a lógica de navegação e logout já está pronta.
 
-**5. Agendamento de Visitas (`/admin/rentals` ou `/admin/schedule`)**
--   [ ] **Estrutura do Banco:** Criar a tabela `agendamentos` com RLS.
--   [ ] **Componente de Calendário:** Integrar um componente de calendário para visualizar e criar agendamentos.
--   [ ] **Notificações:** Configurar o envio de e-mails de confirmação para agendamentos (pode ser uma Edge Function).
+## Segurança (RLS)
+- Políticas de RLS ativas e funções auxiliares no Supabase.
+- Veja AI_RULES.md e as políticas listadas no Supabase Context.
 
----
-
-### ⚙️ Melhorias Gerais e Técnicas
-
--   [ ] **Segurança (RLS):** Revisar e garantir que TODAS as tabelas com dados de tenants (`imoveis`, `clientes`, `agendamentos`, etc.) tenham políticas de Row Level Security robustas.
--   [ ] **Componentes Reutilizáveis:** Criar componentes genéricos (ex: `DataTable`, `PageHeader`) para padronizar as interfaces dos painéis.
-
----
-<br/>
-
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
-
-## Getting Started
-
-First, run the development server:
-
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
-
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Próximos Passos (resumo)
+- Popular dashboards com dados reais do tenant.
+- CRUD de imóveis/clientes/agendamentos com RLS.
+- Upload de mídia via Supabase Storage.
+- Refinar gestão de equipe (papéis: corretor/gerente) e permissões.

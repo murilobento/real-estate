@@ -77,8 +77,8 @@ export default async function SuperAdminUsersPage() {
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <div>
+      <div className="flex items-center justify-between flex-wrap gap-3">
+        <div className="min-w-0">
           <h1 className="text-2xl font-bold">Usuários</h1>
           <p className="text-muted-foreground">
             Gerencie os usuários e atribua-os a uma imobiliária.

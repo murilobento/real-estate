@@ -3,7 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
-import { Network, Users, Layers, ShieldCheck, ChevronDown, ChevronRight } from "lucide-react";
+import { Network, Users, Layers, ShieldCheck, ChevronDown, ChevronRight, LogOut } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -17,6 +17,14 @@ import {
   SidebarMenuItem,
   SidebarRail,
 } from "@/components/ui/sidebar";
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuLabel,
+} from "@/components/ui/dropdown-menu";
 import { createClient } from "@/integrations/supabase/client";
 
 export function AppSidebarSuperAdmin() {
@@ -39,25 +47,17 @@ export function AppSidebarSuperAdmin() {
   return (
     <Sidebar collapsible="icon" side="left" variant="sidebar">
       <SidebarHeader>
-        <div className="rounded-lg border px-3 py-2 hover:bg-accent/50">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="flex h-9 w-9 items-center justify-center rounded-md bg-primary/10">
-                <ShieldCheck className="h-5 w-5 text-primary" />
-              </div>
-              <div className="min-w-0 group-data-[collapsible=icon]/sidebar:hidden">
-                <p className="text-sm font-medium truncate">Acme Inc</p>
-                <p className="text-xs text-muted-foreground">Enterprise</p>
-              </div>
-            </div>
-            <ChevronDown className="h-4 w-4 text-muted-foreground group-data-[collapsible=icon]/sidebar:hidden" />
+        <div className="px-3 py-2">
+          <div className="min-w-0 group-data-[state=open]/sidebar:block group-data-[state=closed]/sidebar:hidden">
+            <p className="text-sm font-semibold leading-none">Super Admin</p>
+            <p className="text-xs text-muted-foreground">Painel</p>
           </div>
         </div>
       </SidebarHeader>
 
       <SidebarContent>
         <SidebarGroup className="mt-2">
-          <SidebarGroupLabel>Platform</SidebarGroupLabel>
+          <SidebarGroupLabel>Menu</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {links.map((link) => {
@@ -77,27 +77,62 @@ export function AppSidebarSuperAdmin() {
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
+
+        <SidebarGroup className="mt-4 group-data-[collapsible=icon]/sidebar:hidden">
+          <SidebarGroupLabel>Atalhos</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild>
+                  <Link href="/super-admin/planos">
+                    <Layers className="h-4 w-4" />
+                    <span>Planos & Billing</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild>
+                  <Link href="/super-admin/users">
+                    <Users className="h-4 w-4" />
+                    <span>Equipe</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
       </SidebarContent>
 
       <SidebarFooter>
-        <div className="rounded-lg border p-2">
-          <div className="flex items-center gap-3 px-1">
-            <span className="relative h-8 w-8 overflow-hidden rounded-full">
-              <Image src="/vercel.svg" alt="avatar" fill sizes="32px" className="object-cover" />
-            </span>
-            <div className="min-w-0 group-data-[collapsible=icon]/sidebar:hidden">
-              <p className="text-sm font-medium leading-tight truncate">shadcn</p>
-              <p className="text-xs text-muted-foreground truncate">m@example.com</p>
-            </div>
-          </div>
-          <div className="mt-2 group-data-[collapsible=icon]/sidebar:hidden">
-            <button
-              className="w-full rounded-md border px-2 py-1.5 text-sm hover:bg-accent"
-              onClick={handleLogout}
-            >
-              Sair
-            </button>
-          </div>
+        <div className="w-full">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button className="flex w-full items-center gap-3 rounded-md border px-2 py-2 hover:bg-accent">
+                <span className="relative h-8 w-8 overflow-hidden rounded-full">
+                  <Image src="/vercel.svg" alt="avatar" fill sizes="32px" className="object-cover" />
+                </span>
+                <div className="min-w-0 text-left group-data-[state=closed]/sidebar:hidden">
+                  <p className="truncate text-sm font-medium leading-tight">Super Admin</p>
+                  <p className="truncate text-xs text-muted-foreground">admin@example.com</p>
+                </div>
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent side="top" align="start" className="w-56">
+              <DropdownMenuLabel>Minha conta</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem asChild>
+                <Link href="/super-admin/users">Perfil</Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Link href="/super-admin/planos">Configurações</Link>
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem className="text-destructive" onClick={handleLogout}>
+                <LogOut className="mr-2 h-4 w-4" />
+                <span>Sair</span>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </SidebarFooter>
 

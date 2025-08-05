@@ -60,7 +60,7 @@ export default async function ImobiliariasPage() {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between flex-wrap gap-3">
-        <div>
+        <div className="min-w-0">
           <h1 className="text-2xl font-bold">Imobiliárias</h1>
           <p className="text-muted-foreground">
             Gerencie as imobiliárias (tenants) cadastradas no sistema.
