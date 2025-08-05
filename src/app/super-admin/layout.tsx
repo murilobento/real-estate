@@ -1,11 +1,13 @@
 "use client";
 
 import * as React from "react";
-import { ShieldCheck } from "lucide-react";
+import { ShieldCheck, Menu } from "lucide-react";
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "@/components/ui/resizable";
 import { Separator } from "@/components/ui/separator";
 import { SuperAdminNav } from "./nav";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { Button } from "@/components/ui/button";
 
 export default function SuperAdminLayout({
   children,
@@ -13,31 +15,74 @@ export default function SuperAdminLayout({
   children: React.ReactNode;
 }) {
   const isMobile = useIsMobile();
+  const [isCollapsed, setIsCollapsed] = React.useState(isMobile);
+
+  React.useEffect(() => {
+    setIsCollapsed(isMobile);
+  }, [isMobile]);
+
+  const nav = (
+    <>
+      <div className="flex h-[52px] items-center justify-center px-2">
+        <a href="/super-admin" className="flex items-center gap-2 font-semibold">
+          <ShieldCheck className="h-6 w-6" />
+          <span className={isCollapsed ? "sr-only" : ""}>Super Admin</span>
+        </a>
+      </div>
+      <Separator />
+      <SuperAdminNav />
+    </>
+  );
+
+  if (isMobile) {
+    return (
+      <div className="flex flex-col h-screen">
+        <header className="flex h-14 items-center gap-4 border-b bg-muted/40 px-4 lg:h-[60px] lg:px-6">
+          <Sheet>
+            <SheetTrigger asChild>
+              <Button variant="outline" size="icon" className="shrink-0 md:hidden">
+                <Menu className="h-5 w-5" />
+                <span className="sr-only">Abrir menu</span>
+              </Button>
+            </SheetTrigger>
+            <SheetContent side="left" className="flex flex-col p-0">
+              {nav}
+            </SheetContent>
+          </Sheet>
+          <div className="w-full flex-1">
+            <h1 className="text-lg font-semibold">Super Admin</h1>
+          </div>
+        </header>
+        <main className="flex-1 p-4 overflow-auto">{children}</main>
+      </div>
+    );
+  }
 
   return (
     <ResizablePanelGroup
       direction="horizontal"
+      onLayout={(sizes: number[]) => {
+        document.cookie = `react-resizable-panels:layout=${JSON.stringify(sizes)}`;
+      }}
       className="h-full max-h-screen items-stretch"
     >
       <ResizablePanel
         defaultSize={20}
-        collapsible={true}
+        collapsedSize={4}
+        collapsible
         minSize={15}
         maxSize={25}
-        className="min-w-[200px]"
+        onCollapse={() => setIsCollapsed(true)}
+        onExpand={() => setIsCollapsed(false)}
+        className="min-w-[50px] transition-all duration-300 ease-in-out"
       >
-        <div className="flex h-[52px] items-center justify-center px-2">
-          <a href="/super-admin" className="flex items-center gap-2 font-semibold">
-            <ShieldCheck className="h-6 w-6" />
-            <span>Super Admin</span>
-          </a>
-        </div>
-        <Separator />
-        <SuperAdminNav />
+        <div className="flex flex-col h-full">{nav}</div>
       </ResizablePanel>
       <ResizableHandle withHandle />
       <ResizablePanel defaultSize={80}>
-        <main className="flex-1 p-6">{children}</main>
+        <div className="flex flex-col h-full">
+          <main className="flex-1 p-6 overflow-auto">{children}</main>
+        </div>
       </ResizablePanel>
     </ResizablePanelGroup>
   );
