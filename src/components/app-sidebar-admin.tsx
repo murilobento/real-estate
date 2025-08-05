@@ -55,17 +55,19 @@ export function AppSidebarAdmin() {
     <Sidebar collapsible="icon" side="left" variant="sidebar">
       {/* Workspace card */}
       <SidebarHeader>
-        <div className="flex items-center justify-between rounded-lg border px-3 py-2">
-          <div className="flex items-center gap-3">
-            <div className="flex h-9 w-9 items-center justify-center rounded-md bg-primary/10">
-              <Laptop2 className="h-5 w-5 text-primary" />
+        <div className="rounded-lg border px-3 py-2 hover:bg-accent/50">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="flex h-9 w-9 items-center justify-center rounded-md bg-primary/10">
+                <Laptop2 className="h-5 w-5 text-primary" />
+              </div>
+              <div className="min-w-0 group-data-[collapsible=icon]/sidebar:hidden">
+                <p className="text-sm font-medium truncate">Imobiliária</p>
+                <p className="text-xs text-muted-foreground">Admin</p>
+              </div>
             </div>
-            <div className="min-w-0 group-data-[collapsible=icon]/sidebar:hidden">
-              <p className="text-sm font-medium truncate">Imobiliária</p>
-              <p className="text-xs text-muted-foreground">Admin</p>
-            </div>
+            <ChevronDown className="h-4 w-4 text-muted-foreground group-data-[collapsible=icon]/sidebar:hidden" />
           </div>
-          <ChevronDown className="h-4 w-4 text-muted-foreground group-data-[collapsible=icon]/sidebar:hidden" />
         </div>
       </SidebarHeader>
 
@@ -74,17 +76,20 @@ export function AppSidebarAdmin() {
           <SidebarGroupLabel>Platform</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {links.map((link) => (
-                <SidebarMenuItem key={link.href}>
-                  <SidebarMenuButton asChild isActive={pathname === link.href}>
-                    <Link href={link.href}>
-                      <link.icon className="h-4 w-4" />
-                      <span>{link.title}</span>
-                      <ChevronRight className="ml-auto h-4 w-4 text-muted-foreground/70 group-data-[collapsible=icon]/sidebar:hidden" />
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
+              {links.map((link) => {
+                const active = pathname === link.href
+                return (
+                  <SidebarMenuItem key={link.href}>
+                    <SidebarMenuButton asChild isActive={active}>
+                      <Link href={link.href}>
+                        <link.icon className="h-4 w-4" />
+                        <span>{link.title}</span>
+                        <ChevronRight className="ml-auto h-4 w-4 text-muted-foreground/70 group-data-[collapsible=icon]/sidebar:hidden" />
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                )
+              })}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>

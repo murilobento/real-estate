@@ -3,7 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
-import { Network, Users, Layers, ShieldCheck, LogOut, ChevronDown, ChevronRight } from "lucide-react";
+import { Network, Users, Layers, ShieldCheck, ChevronDown, ChevronRight } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -40,17 +40,19 @@ export function AppSidebarSuperAdmin() {
     <Sidebar collapsible="icon" side="left" variant="sidebar">
       {/* Workspace card */}
       <SidebarHeader>
-        <div className="flex items-center justify-between rounded-lg border px-3 py-2">
-          <div className="flex items-center gap-3">
-            <div className="flex h-9 w-9 items-center justify-center rounded-md bg-primary/10">
-              <ShieldCheck className="h-5 w-5 text-primary" />
+        <div className="rounded-lg border px-3 py-2 hover:bg-accent/50">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="flex h-9 w-9 items-center justify-center rounded-md bg-primary/10">
+                <ShieldCheck className="h-5 w-5 text-primary" />
+              </div>
+              <div className="min-w-0 group-data-[collapsible=icon]/sidebar:hidden">
+                <p className="text-sm font-medium truncate">Acme Inc</p>
+                <p className="text-xs text-muted-foreground">Enterprise</p>
+              </div>
             </div>
-            <div className="min-w-0 group-data-[collapsible=icon]/sidebar:hidden">
-              <p className="text-sm font-medium truncate">Acme Inc</p>
-              <p className="text-xs text-muted-foreground">Enterprise</p>
-            </div>
+            <ChevronDown className="h-4 w-4 text-muted-foreground group-data-[collapsible=icon]/sidebar:hidden" />
           </div>
-          <ChevronDown className="h-4 w-4 text-muted-foreground group-data-[collapsible=icon]/sidebar:hidden" />
         </div>
       </SidebarHeader>
 
@@ -59,17 +61,20 @@ export function AppSidebarSuperAdmin() {
           <SidebarGroupLabel>Platform</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {links.map((link) => (
-                <SidebarMenuItem key={link.href}>
-                  <SidebarMenuButton asChild isActive={pathname.startsWith(link.href)}>
-                    <Link href={link.href}>
-                      <link.icon className="h-4 w-4" />
-                      <span>{link.title}</span>
-                      <ChevronRight className="ml-auto h-4 w-4 text-muted-foreground/70 group-data-[collapsible=icon]/sidebar:hidden" />
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
+              {links.map((link) => {
+                const active = pathname.startsWith(link.href)
+                return (
+                  <SidebarMenuItem key={link.href}>
+                    <SidebarMenuButton asChild isActive={active}>
+                      <Link href={link.href}>
+                        <link.icon className="h-4 w-4" />
+                        <span>{link.title}</span>
+                        <ChevronRight className="ml-auto h-4 w-4 text-muted-foreground/70 group-data-[collapsible=icon]/sidebar:hidden" />
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                )
+              })}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
