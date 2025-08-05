@@ -3,14 +3,12 @@
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import {
-  Home,
   Users,
   Building,
   KeyRound,
   Settings,
   MapPin,
   LayoutDashboard,
-  Network,
 } from "lucide-react"
 
 import { cn } from "@/lib/utils"
@@ -51,11 +49,6 @@ export function Nav() {
       title: "Usuários",
       href: "/admin/users",
       icon: Users,
-    },
-    {
-      title: "Imobiliárias",
-      href: "/admin/imobiliarias",
-      icon: Network,
     },
     {
       title: "Cidades",
