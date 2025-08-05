@@ -1,6 +1,7 @@
 "use server";
 
 import { createClient } from "@/integrations/supabase/server";
+import { createAdminClient } from "@/integrations/supabase/admin";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 
@@ -11,6 +12,7 @@ const formSchema = z.object({
 
 export async function createImobiliaria(values: z.infer<typeof formSchema>) {
   const supabase = createClient();
+  const supabaseAdmin = createAdminClient();
   const validatedFields = formSchema.safeParse(values);
 
   if (!validatedFields.success) {
@@ -19,16 +21,40 @@ export async function createImobiliaria(values: z.infer<typeof formSchema>) {
 
   const { name, email_contato } = validatedFields.data;
 
-  const { error } = await supabase
+  // Etapa 1: Criar a imobiliária e obter seu ID
+  const { data: newImobiliaria, error: insertError } = await supabase
     .from("imobiliarias")
-    .insert({ name, email_contato });
+    .insert({ name, email_contato })
+    .select("id")
+    .single();
 
-  if (error) {
-    console.error("Error creating imobiliaria:", error);
+  if (insertError) {
+    console.error("Error creating imobiliaria:", insertError);
     throw new Error("Falha ao criar imobiliária.");
   }
 
+  // Etapa 2: Convidar o usuário administrador por e-mail
+  const { error: inviteError } = await supabaseAdmin.auth.admin.inviteUserByEmail(
+    email_contato,
+    {
+      data: {
+        first_name: name,
+        last_name: "Admin",
+        role: "admin",
+        imobiliaria_id: newImobiliaria.id,
+      },
+    }
+  );
+
+  if (inviteError) {
+    // Se o convite falhar, reverte a criação da imobiliária para manter a consistência dos dados.
+    console.error("Imobiliaria created, but failed to invite admin user:", inviteError);
+    await supabase.from("imobiliarias").delete().eq("id", newImobiliaria.id);
+    throw new Error(`Falha ao convidar o usuário administrador: ${inviteError.message}. A criação da imobiliária foi revertida.`);
+  }
+
   revalidatePath("/super-admin/imobiliarias");
+  revalidatePath("/super-admin/users");
 }
 
 export async function updateImobiliaria(id: string, values: z.infer<typeof formSchema>) {
