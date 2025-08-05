@@ -39,32 +39,16 @@ export function AddPlanoForm() {
       name: "",
       price_cents: 0,
       description: "",
-      features: [],
+      features: "",
     },
   });
 
-  // Para abrir via Trigger controlado pelo Radix, mantemos não-controlado (abrir/fechar por default behavior).
   const onSubmit = (values: FormValues) => {
     startTransition(async () => {
       try {
-        // transforma features digitadas como texto em array (uma por linha ou separadas por vírgula)
-        const parsedFeatures = Array.isArray(values.features)
-          ? values.features
-          : typeof values.features === "string"
-          ? values.features
-              .split(/\r?\n|,/)
-              .map((s) => s.trim())
-              .filter(Boolean)
-          : [];
-
-        await createPlano({
-          ...values,
-          features: parsedFeatures.length ? parsedFeatures : null,
-          description: values.description?.trim() || null,
-        });
+        await createPlano(values);
         toast.success("Plano criado com sucesso!");
-        form.reset({ name: "", price_cents: 0, description: "", features: [] });
-        // Dialog fecha automaticamente ao perder foco; mantemos simples.
+        form.reset({ name: "", price_cents: 0, description: "", features: "" });
       } catch (e: any) {
         toast.error(e.message || "Falha ao criar plano.");
       }
@@ -142,13 +126,7 @@ export function AddPlanoForm() {
                   <FormControl>
                     <Textarea
                       placeholder={"Ex.: \nAté 20 usuários\nRelatórios avançados\nSuporte prioritário"}
-                      value={
-                        Array.isArray(field.value)
-                          ? field.value.join("\n")
-                          : typeof field.value === "string"
-                          ? field.value
-                          : ""
-                      }
+                      value={typeof field.value === "string" ? field.value : Array.isArray(field.value) ? field.value.join("\n") : ""}
                       onChange={(e) => field.onChange(e.target.value)}
                       className="min-h-28"
                     />

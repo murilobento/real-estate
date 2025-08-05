@@ -57,27 +57,14 @@ export function PlanoRowActions({ plano }: { plano: Plano }) {
       name: plano.name,
       price_cents: plano.price_cents,
       description: plano.description ?? "",
-      features: plano.features ?? [],
+      features: Array.isArray(plano.features) ? plano.features.join("\n") : "",
     },
   });
 
   const onSubmit = (values: FormValues) => {
     startTransition(async () => {
       try {
-        const parsedFeatures = Array.isArray(values.features)
-          ? values.features
-          : typeof values.features === "string"
-          ? values.features
-              .split(/\r?\n|,/)
-              .map((s) => s.trim())
-              .filter(Boolean)
-          : [];
-
-        await updatePlano(plano.id, {
-          ...values,
-          features: parsedFeatures.length ? parsedFeatures : null,
-          description: values.description?.trim() || null,
-        });
+        await updatePlano(plano.id, values);
         toast.success("Plano atualizado com sucesso!");
         setIsEditOpen(false);
       } catch (e: any) {
@@ -184,13 +171,8 @@ export function PlanoRowActions({ plano }: { plano: Plano }) {
                     <FormLabel>Recursos (um por linha)</FormLabel>
                     <FormControl>
                       <Textarea
-                        value={
-                          Array.isArray(field.value)
-                            ? field.value.join("\n")
-                            : typeof field.value === "string"
-                            ? field.value
-                            : ""
-                        }
+                        placeholder="Cada recurso em uma linha"
+                        value={typeof field.value === "string" ? field.value : Array.isArray(field.value) ? field.value.join("\n") : ""}
                         onChange={(e) => field.onChange(e.target.value)}
                         className="min-h-28"
                       />
