@@ -54,18 +54,6 @@ export function ShowPlanoButton({ plano }: { plano: Plano }) {
                 <p className="text-sm">—</p>
               )}
             </div>
-            <div className="grid grid-cols-2 gap-4 text-sm text-muted-foreground">
-              <div>
-                <span className="block">Criado em</span>
-                <span className="font-medium text-foreground">
-                  {plano.created_at ? new Date(plano.created_at).toLocaleString("pt-BR") : "—"}
-                </span>
-              </div>
-              <div>
-                <span className="block">ID</span>
-                <span className="font-mono text-foreground">{plano.id}</span>
-              </div>
-            </div>
           </div>
         </DialogContent>
       </Dialog>
