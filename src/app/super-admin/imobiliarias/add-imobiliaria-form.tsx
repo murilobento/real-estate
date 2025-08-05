@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useEffect, useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -34,26 +34,43 @@ const formSchema = z.object({
     .min(2, { message: "O nome deve ter pelo menos 2 caracteres." }),
   email_contato: z.string().email({ message: "E-mail de contato inválido." }),
   status: z.enum(["ativo", "inativo"]).default("ativo"),
+  plano_id: z.string().uuid({ message: "Selecione um plano." }),
 });
 
 type FormValues = z.infer<typeof formSchema>;
 
+type Plano = {
+  id: string;
+  name: string;
+};
+
 export function AddImobiliariaForm() {
   const [isOpen, setIsOpen] = useState(false);
   const [isPending, startTransition] = useTransition();
+  const [planos, setPlanos] = useState<Plano[]>([]);
+
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: "",
       email_contato: "",
       status: "ativo",
+      plano_id: undefined as unknown as string,
     },
   });
+
+  useEffect(() => {
+    // carrega planos para o select
+    fetch("/api/planos")
+      .then((r) => r.json())
+      .then((data) => setPlanos(data || []))
+      .catch(() => setPlanos([]));
+  }, []);
 
   const onSubmit = async (values: FormValues) => {
     startTransition(async () => {
       try {
-        await createImobiliaria(values);
+        await createImobiliaria(values as any);
         toast.success("Imobiliária criada com sucesso!");
         form.reset();
         setIsOpen(false);
@@ -117,16 +134,37 @@ export function AddImobiliariaForm() {
                 <FormItem>
                   <FormLabel>Status</FormLabel>
                   <FormControl>
-                    <Select
-                      defaultValue={field.value}
-                      onValueChange={field.onChange}
-                    >
+                    <Select defaultValue={field.value} onValueChange={field.onChange}>
                       <SelectTrigger>
                         <SelectValue placeholder="Selecione o status" />
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="ativo">Ativo</SelectItem>
                         <SelectItem value="inativo">Inativo</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="plano_id"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Plano</FormLabel>
+                  <FormControl>
+                    <Select value={field.value} onValueChange={field.onChange}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Selecione um plano" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {planos.map((p) => (
+                          <SelectItem key={p.id} value={p.id}>
+                            {p.name}
+                          </SelectItem>
+                        ))}
                       </SelectContent>
                     </Select>
                   </FormControl>

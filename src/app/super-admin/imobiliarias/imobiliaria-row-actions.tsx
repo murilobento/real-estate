@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useState, useTransition, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -52,12 +52,16 @@ type Imobiliaria = {
   name: string;
   email_contato: string | null;
   status?: "ativo" | "inativo";
+  plano_id?: string | null;
 };
+
+type Plano = { id: string; name: string };
 
 const formSchema = z.object({
   name: z.string().min(2, { message: "O nome deve ter pelo menos 2 caracteres." }),
   email_contato: z.string().email({ message: "E-mail de contato inválido." }),
   status: z.enum(["ativo", "inativo"]).default("ativo"),
+  plano_id: z.string().uuid({ message: "Selecione um plano." }),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -66,6 +70,7 @@ export function ImobiliariaRowActions({ imobiliaria }: { imobiliaria: Imobiliari
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [isPending, startTransition] = useTransition();
+  const [planos, setPlanos] = useState<Plano[]>([]);
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -73,13 +78,21 @@ export function ImobiliariaRowActions({ imobiliaria }: { imobiliaria: Imobiliari
       name: imobiliaria.name,
       email_contato: imobiliaria.email_contato || "",
       status: imobiliaria.status || "ativo",
+      plano_id: imobiliaria.plano_id || undefined as unknown as string,
     },
   });
+
+  useEffect(() => {
+    fetch("/api/planos")
+      .then((r) => r.json())
+      .then((data) => setPlanos(data || []))
+      .catch(() => setPlanos([]));
+  }, []);
 
   const onEditSubmit = (values: FormValues) => {
     startTransition(async () => {
       try {
-        await updateImobiliaria(imobiliaria.id, values);
+        await updateImobiliaria(imobiliaria.id, values as any);
         toast.success("Imobiliária atualizada com sucesso!");
         setIsEditDialogOpen(false);
       } catch (error: any) {
@@ -130,9 +143,7 @@ export function ImobiliariaRowActions({ imobiliaria }: { imobiliaria: Imobiliari
         <DialogContent className="sm:max-w-[480px]">
           <DialogHeader>
             <DialogTitle>Editar Imobiliária</DialogTitle>
-            <DialogDescription>
-              Atualize os dados da imobiliária.
-            </DialogDescription>
+            <DialogDescription>Atualize os dados da imobiliária.</DialogDescription>
           </DialogHeader>
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onEditSubmit)} className="space-y-6 pt-2">
@@ -156,11 +167,7 @@ export function ImobiliariaRowActions({ imobiliaria }: { imobiliaria: Imobiliari
                   <FormItem>
                     <FormLabel>Email de Contato</FormLabel>
                     <FormControl>
-                      <Input
-                        type="email"
-                        placeholder="contato@imobiliaria.com"
-                        {...field}
-                      />
+                      <Input type="email" placeholder="contato@imobiliaria.com" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -173,10 +180,7 @@ export function ImobiliariaRowActions({ imobiliaria }: { imobiliaria: Imobiliari
                   <FormItem>
                     <FormLabel>Status</FormLabel>
                     <FormControl>
-                      <Select
-                        defaultValue={field.value}
-                        onValueChange={field.onChange}
-                      >
+                      <Select defaultValue={field.value} onValueChange={field.onChange}>
                         <SelectTrigger>
                           <SelectValue placeholder="Selecione o status" />
                         </SelectTrigger>
@@ -190,12 +194,36 @@ export function ImobiliariaRowActions({ imobiliaria }: { imobiliaria: Imobiliari
                   </FormItem>
                 )}
               />
+              <FormField
+                control={form.control}
+                name="plano_id"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Plano</FormLabel>
+                    <FormControl>
+                      <Select value={field.value} onValueChange={field.onChange}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Selecione um plano" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {planos.map((p) => (
+                            <SelectItem key={p.id} value={p.id}>
+                              {p.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
               <DialogFooter>
                 <DialogClose asChild>
                   <Button type="button" variant="outline">Cancelar</Button>
                 </DialogClose>
                 <Button type="submit" disabled={isPending}>
-                  {isPending ? "Salvando..." : "Salvar Alterações"}
+                    {isPending ? "Salvando..." : "Salvar Alterações"}
                 </Button>
               </DialogFooter>
             </form>

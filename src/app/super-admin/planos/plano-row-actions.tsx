@@ -45,10 +45,17 @@ type Plano = {
 
 type FormValues = {
   name: string;
-  price_cents: number;
+  // preço em reais (ex.: "399.90")
+  price: string;
   description?: string | null;
   features?: string | null;
 };
+
+function centsToReaisString(cents: number): string {
+  const v = (cents ?? 0) / 100;
+  // preserva separador de ponto para edição
+  return String(v.toFixed(2));
+}
 
 export function PlanoRowActions({ plano }: { plano: Plano }) {
   const [isPending, startTransition] = useTransition();
@@ -58,7 +65,7 @@ export function PlanoRowActions({ plano }: { plano: Plano }) {
   const form = useForm<FormValues>({
     defaultValues: {
       name: plano.name,
-      price_cents: plano.price_cents,
+      price: centsToReaisString(plano.price_cents),
       description: plano.description ?? "",
       features: Array.isArray(plano.features) ? plano.features.join("\n") : "",
     },
@@ -67,13 +74,20 @@ export function PlanoRowActions({ plano }: { plano: Plano }) {
   const onSubmit = (values: FormValues) => {
     startTransition(async () => {
       try {
-        const payload = {
-          ...values,
-          price_cents: Number.isFinite(values.price_cents) ? values.price_cents : 0,
+        const normalized = (values.price ?? "").toString().trim().replace(",", ".");
+        const priceNumber = Number(normalized);
+        if (!Number.isFinite(priceNumber) || priceNumber < 0) {
+          toast.error("Informe um preço válido em reais. Ex.: 399.90");
+          return;
+        }
+
+        await updatePlano(plano.id, {
+          name: values.name,
+          price_cents: priceNumber, // servidor converte para centavos
           description: values.description?.trim() || "",
           features: values.features ?? "",
-        };
-        await updatePlano(plano.id, payload as any);
+        } as any);
+
         toast.success("Plano atualizado com sucesso!");
         setIsEditOpen(false);
       } catch (e: any) {
@@ -144,18 +158,17 @@ export function PlanoRowActions({ plano }: { plano: Plano }) {
               />
               <FormField
                 control={form.control}
-                name="price_cents"
-                rules={{ min: { value: 0, message: "Preço deve ser >= 0" } }}
+                name="price"
+                rules={{ required: "Informe o preço em reais." }}
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Preço (centavos)</FormLabel>
+                    <FormLabel>Preço (R$)</FormLabel>
                     <FormControl>
                       <Input
-                        type="number"
-                        min={0}
-                        step={100}
-                        value={field.value}
-                        onChange={(e) => field.onChange(e.target.valueAsNumber)}
+                        type="text"
+                        inputMode="decimal"
+                        placeholder="Ex.: 399.90"
+                        {...field}
                       />
                     </FormControl>
                     <FormMessage />
