@@ -172,7 +172,7 @@ export function PlanoRowActions({ plano }: { plano: Plano }) {
                     <FormControl>
                       <Textarea
                         placeholder="Cada recurso em uma linha"
-                        value={typeof field.value === "string" ? field.value : Array.isArray(field.value) ? field.value.join("\n") : ""}
+                        value={field.value ?? ""}
                         onChange={(e) => field.onChange(e.target.value)}
                         className="min-h-28"
                       />

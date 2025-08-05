@@ -4,24 +4,18 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { createClient } from "@/integrations/supabase/server";
 
-const featuresUnion = z.union([z.array(z.string()), z.string()]).optional().nullable();
-
 export const planoSchema = z.object({
   name: z.string().min(2, "O nome deve ter pelo menos 2 caracteres."),
   price_cents: z.coerce.number().int().nonnegative("Preço deve ser positivo."),
   description: z.string().optional().nullable(),
-  features: featuresUnion,
+  // Importante: no client enviamos SEMPRE string (textarea); normalizamos aqui
+  features: z.string().optional().nullable(),
 });
 
 export type PlanoInput = z.infer<typeof planoSchema>;
 
-function normalizeFeatures(input: PlanoInput["features"]): string[] | null {
-  if (!input && input !== "") return null;
-  if (Array.isArray(input)) {
-    const arr = input.map((s) => (s ?? "").toString().trim()).filter(Boolean);
-    return arr.length ? arr : null;
-  }
-  // é string
+function normalizeFeatures(input: string | null | undefined): string[] | null {
+  if (!input) return null;
   const parts = input
     .split(/\r?\n|,/)
     .map((s) => s.trim())

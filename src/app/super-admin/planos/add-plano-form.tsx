@@ -116,7 +116,6 @@ export function AddPlanoForm() {
                 </FormItem>
               )}
             />
-            {/* Campo de features como textarea, uma por linha */}
             <FormField
               control={form.control}
               name="features"
@@ -126,7 +125,7 @@ export function AddPlanoForm() {
                   <FormControl>
                     <Textarea
                       placeholder={"Ex.: \nAté 20 usuários\nRelatórios avançados\nSuporte prioritário"}
-                      value={typeof field.value === "string" ? field.value : Array.isArray(field.value) ? field.value.join("\n") : ""}
+                      value={field.value ?? ""}
                       onChange={(e) => field.onChange(e.target.value)}
                       className="min-h-28"
                     />
