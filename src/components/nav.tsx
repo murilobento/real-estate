@@ -8,7 +8,7 @@ import {
   Building,
   KeyRound,
   Settings,
-  City,
+  MapPin,
   LayoutDashboard,
 } from "lucide-react"
 
@@ -54,7 +54,7 @@ export function Nav() {
     {
       title: "Cidades",
       href: "/admin/cities",
-      icon: City,
+      icon: MapPin,
     },
     {
       title: "Configurações",
