@@ -66,7 +66,7 @@ export function AddPlanoForm() {
       <DialogContent className="sm:max-w-[520px]">
         <DialogHeader>
           <DialogTitle>Novo Plano</DialogTitle>
-          <DialogDescription>Defina os detalhes do plano de assinatura.</DialogDescription>
+          <DialogDescription>Defina as informações do plano.</DialogDescription>
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 pt-2">
