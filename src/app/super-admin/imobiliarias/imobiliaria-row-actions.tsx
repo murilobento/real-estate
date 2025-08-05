@@ -78,20 +78,33 @@ export function ImobiliariaRowActions({ imobiliaria }: { imobiliaria: Imobiliari
       name: imobiliaria.name,
       email_contato: imobiliaria.email_contato || "",
       status: imobiliaria.status || "ativo",
-      plano_id: imobiliaria.plano_id || undefined as unknown as string,
+      plano_id: (imobiliaria.plano_id as string) || "",
     },
   });
 
   useEffect(() => {
+    // carrega planos
     fetch("/api/planos")
       .then((r) => r.json())
-      .then((data) => setPlanos(data || []))
+      .then((data: Plano[]) => {
+        setPlanos(data || []);
+        // se não houver plano selecionado, define o primeiro disponível
+        const current = form.getValues("plano_id");
+        if ((!current || current.length === 0) && data && data.length > 0) {
+          form.setValue("plano_id", data[0].id, { shouldValidate: true });
+        }
+      })
       .catch(() => setPlanos([]));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const onEditSubmit = (values: FormValues) => {
     startTransition(async () => {
       try {
+        if (!values.plano_id) {
+          toast.error("Selecione um plano.");
+          return;
+        }
         await updateImobiliaria(imobiliaria.id, values as any);
         toast.success("Imobiliária atualizada com sucesso!");
         setIsEditDialogOpen(false);
@@ -126,16 +139,14 @@ export function ImobiliariaRowActions({ imobiliaria }: { imobiliaria: Imobiliari
           <DropdownMenuContent align="end">
             <DropdownMenuLabel>Ações</DropdownMenuLabel>
             <DropdownMenuItem onSelect={() => setIsEditDialogOpen(true)}>
-              <Pencil className="mr-2 h-4 w-4" />
-              Editar
+              <span className="flex items-center"><Pencil className="mr-2 h-4 w-4" />Editar</span>
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem
               onSelect={() => setIsDeleteDialogOpen(true)}
               className="text-destructive focus:text-destructive"
             >
-              <Trash2 className="mr-2 h-4 w-4" />
-              Excluir
+              <span className="flex items-center"><Trash2 className="mr-2 h-4 w-4" />Excluir</span>
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
@@ -223,7 +234,7 @@ export function ImobiliariaRowActions({ imobiliaria }: { imobiliaria: Imobiliari
                   <Button type="button" variant="outline">Cancelar</Button>
                 </DialogClose>
                 <Button type="submit" disabled={isPending}>
-                    {isPending ? "Salvando..." : "Salvar Alterações"}
+                  {isPending ? "Salvando..." : "Salvar Alterações"}
                 </Button>
               </DialogFooter>
             </form>
