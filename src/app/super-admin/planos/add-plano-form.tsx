@@ -29,7 +29,8 @@ import { Textarea } from "@/components/ui/textarea";
 
 type FormValues = {
   name: string;
-  price_cents: number;
+  // Agora preço em reais (ex.: "399.90")
+  price: string;
   description?: string | null;
   features?: string | null;
 };
@@ -37,10 +38,9 @@ type FormValues = {
 export function AddPlanoForm() {
   const [isPending, startTransition] = useTransition();
   const form = useForm<FormValues>({
-    // Sem zodResolver no client
     defaultValues: {
       name: "",
-      price_cents: 0,
+      price: "",
       description: "",
       features: "",
     },
@@ -49,16 +49,24 @@ export function AddPlanoForm() {
   const onSubmit = (values: FormValues) => {
     startTransition(async () => {
       try {
-        // Coerção simples no client
-        const payload = {
-          ...values,
-          price_cents: Number.isFinite(values.price_cents) ? values.price_cents : 0,
+        // Normaliza vírgula para ponto e remove espaços
+        const normalized = (values.price ?? "").toString().trim().replace(",", ".");
+        const priceNumber = Number(normalized);
+        if (!Number.isFinite(priceNumber) || priceNumber < 0) {
+          toast.error("Informe um preço válido em reais. Ex.: 399.90");
+          return;
+        }
+
+        await createPlano({
+          name: values.name,
+          // Envia como string de reais para ser convertido no server
+          price_cents: priceNumber,
           description: values.description?.trim() || "",
           features: values.features ?? "",
-        };
-        await createPlano(payload as any);
+        } as any);
+
         toast.success("Plano criado com sucesso!");
-        form.reset({ name: "", price_cents: 0, description: "", features: "" });
+        form.reset({ name: "", price: "", description: "", features: "" });
       } catch (e: any) {
         toast.error(e.message || "Falha ao criar plano.");
       }
@@ -96,19 +104,17 @@ export function AddPlanoForm() {
             />
             <FormField
               control={form.control}
-              name="price_cents"
-              rules={{ min: { value: 0, message: "Preço deve ser >= 0" } }}
+              name="price"
+              rules={{ required: "Informe o preço em reais." }}
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Preço (centavos)</FormLabel>
+                  <FormLabel>Preço (R$)</FormLabel>
                   <FormControl>
                     <Input
-                      type="number"
-                      min={0}
-                      step={100}
-                      placeholder="Ex.: 39900 para R$ 399,00"
-                      value={field.value}
-                      onChange={(e) => field.onChange(e.target.valueAsNumber)}
+                      type="text"
+                      inputMode="decimal"
+                      placeholder="Ex.: 399.90"
+                      {...field}
                     />
                   </FormControl>
                   <FormMessage />

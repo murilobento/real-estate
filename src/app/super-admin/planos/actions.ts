@@ -13,19 +13,39 @@ function normalizeFeatures(input: string | null | undefined): string[] | null {
   return parts.length ? parts : null;
 }
 
+// Converte valor unitário (reais) para centavos com segurança
+function reaisToCents(value: number | string): number {
+  if (typeof value === "string") {
+    const normalized = value.trim().replace(",", ".");
+    const num = Number(normalized);
+    if (!Number.isFinite(num)) throw new Error("Preço inválido.");
+    return Math.round(num * 100);
+  }
+  if (!Number.isFinite(value)) throw new Error("Preço inválido.");
+  return Math.round(value * 100);
+}
+
 export async function createPlano(values: PlanoInput) {
   const supabase = await createClient();
-  const parsed = planoSchema.safeParse(values);
+
+  // values.price_cents agora chega como número em reais (ex.: 399.9)
+  // Validamos e depois convertimos para centavos
+  const parsed = planoSchema.safeParse({
+    ...values,
+    // Passamos um inteiro provisório para validar shape; depois sobrescrevemos
+    price_cents: 0,
+  });
   if (!parsed.success) {
     throw new Error("Dados inválidos.");
   }
 
-  const features = normalizeFeatures(parsed.data.features);
-  const description = parsed.data.description?.trim() || null;
+  const features = normalizeFeatures(values.features);
+  const description = values.description?.trim() || null;
+  const price_cents = reaisToCents(values.price_cents as unknown as number);
 
   const { error } = await supabase.from("planos").insert({
-    name: parsed.data.name,
-    price_cents: parsed.data.price_cents,
+    name: values.name,
+    price_cents,
     description,
     features,
   });
@@ -36,23 +56,29 @@ export async function createPlano(values: PlanoInput) {
   }
 
   revalidatePath("/super-admin/planos");
+  revalidatePath("/"); // atualiza landing
 }
 
 export async function updatePlano(id: string, values: PlanoInput) {
   const supabase = await createClient();
-  const parsed = planoSchema.safeParse(values);
+
+  const parsed = planoSchema.safeParse({
+    ...values,
+    price_cents: 0,
+  });
   if (!parsed.success) {
     throw new Error("Dados inválidos.");
   }
 
-  const features = normalizeFeatures(parsed.data.features);
-  const description = parsed.data.description?.trim() || null;
+  const features = normalizeFeatures(values.features);
+  const description = values.description?.trim() || null;
+  const price_cents = reaisToCents(values.price_cents as unknown as number);
 
   const { error } = await supabase
     .from("planos")
     .update({
-      name: parsed.data.name,
-      price_cents: parsed.data.price_cents,
+      name: values.name,
+      price_cents,
       description,
       features,
     })
@@ -64,6 +90,7 @@ export async function updatePlano(id: string, values: PlanoInput) {
   }
 
   revalidatePath("/super-admin/planos");
+  revalidatePath("/");
 }
 
 export async function deletePlano(id: string) {
@@ -76,4 +103,5 @@ export async function deletePlano(id: string) {
   }
 
   revalidatePath("/super-admin/planos");
+  revalidatePath("/");
 }
