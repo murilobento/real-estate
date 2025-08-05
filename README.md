@@ -15,6 +15,8 @@ Este documento descreve as tarefas necessárias para alinhar o desenvolvimento d
 - `[x]` Super-Admin pode criar imobiliárias (apenas com nome).
 - `[x]` Super-Admin pode visualizar usuários e atribuí-los a imobiliárias.
 - `[x]` Super-Admin pode criar novos usuários.
+- `[x]` Status da Conta: Adicionar campo `status` (`ativo`, `inativo`) na tabela `imobiliarias` e permitir que o Super-Admin altere esse status.
+- `[x]` Criar uma nova tabela `planos` no banco de dados.
 
 ---
 
@@ -26,9 +28,9 @@ Este documento descreve as tarefas necessárias para alinhar o desenvolvimento d
 -   `[x]` **Melhorar Criação:** Adicionar campos `email_contato` e `plano_id` (inicialmente opcional) ao formulário de criação de imobiliária.
 -   `[x]` **Automação:** Implementar a criação automática de um usuário **Admin** padrão quando uma nova imobiliária for criada. O sistema deve enviar um e-mail de boas-vindas com um link para definir a senha.
 -   `[x]` **Edição:** Criar funcionalidade para o Super-Admin editar as informações de uma imobiliária existente.
--   [ ] **Status da Conta:** Adicionar um campo `status` (`ativo`, `inativo`) na tabela `imobiliarias` e permitir que o Super-Admin altere esse status.
+-   `[x]` **Status da Conta:** Adicionar um campo `status` (`ativo`, `inativo`) na tabela `imobiliarias` e permitir que o Super-Admin altere esse status.
 -   [ ] **Planos de Assinatura:**
-    -   [ ] Criar uma nova tabela `planos` no banco de dados.
+    -   `[x]` Criar uma nova tabela `planos` no banco de dados.
     -   [ ] Desenvolver uma interface para o Super-Admin criar, editar e visualizar os planos.
 
 **2. Gerenciamento de Usuários**
