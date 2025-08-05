@@ -78,3 +78,20 @@ export async function updateImobiliaria(id: string, values: z.infer<typeof formS
 
   revalidatePath("/super-admin/imobiliarias");
 }
+
+export async function deleteImobiliaria(id: string) {
+  const supabase = await createClient();
+
+  const { error } = await supabase
+    .from("imobiliarias")
+    .delete()
+    .eq("id", id);
+
+  if (error) {
+    console.error("Error deleting imobiliaria:", error);
+    throw new Error("Falha ao excluir imobiliária.");
+  }
+
+  revalidatePath("/super-admin/imobiliarias");
+  revalidatePath("/super-admin/users");
+}
