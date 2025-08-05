@@ -8,6 +8,7 @@ import { z } from "zod";
 const formSchema = z.object({
   name: z.string().min(2, { message: "O nome deve ter pelo menos 2 caracteres." }),
   email_contato: z.string().email({ message: "E-mail de contato inválido." }),
+  status: z.enum(["ativo", "inativo"]).default("ativo"),
 });
 
 export async function createImobiliaria(values: z.infer<typeof formSchema>) {
@@ -19,12 +20,12 @@ export async function createImobiliaria(values: z.infer<typeof formSchema>) {
     throw new Error("Dados inválidos.");
   }
 
-  const { name, email_contato } = validatedFields.data;
+  const { name, email_contato, status } = validatedFields.data;
 
   // Etapa 1: Criar a imobiliária e obter seu ID
   const { data: newImobiliaria, error: insertError } = await supabase
     .from("imobiliarias")
-    .insert({ name, email_contato })
+    .insert({ name, email_contato, status })
     .select("id")
     .single();
 
@@ -65,11 +66,11 @@ export async function updateImobiliaria(id: string, values: z.infer<typeof formS
     throw new Error("Dados inválidos.");
   }
 
-  const { name, email_contato } = validatedFields.data;
+  const { name, email_contato, status } = validatedFields.data;
 
   const { error } = await supabase
     .from("imobiliarias")
-    .update({ name, email_contato })
+    .update({ name, email_contato, status })
     .eq("id", id);
 
   if (error) {

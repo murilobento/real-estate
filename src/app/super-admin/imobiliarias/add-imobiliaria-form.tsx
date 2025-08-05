@@ -26,12 +26,14 @@ import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import { PlusCircle } from "lucide-react";
 import { createImobiliaria } from "./actions";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 const formSchema = z.object({
   name: z
     .string()
     .min(2, { message: "O nome deve ter pelo menos 2 caracteres." }),
   email_contato: z.string().email({ message: "E-mail de contato inválido." }),
+  status: z.enum(["ativo", "inativo"]).default("ativo"),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -44,6 +46,7 @@ export function AddImobiliariaForm() {
     defaultValues: {
       name: "",
       email_contato: "",
+      status: "ativo",
     },
   });
 
@@ -68,7 +71,7 @@ export function AddImobiliariaForm() {
           Adicionar Imobiliária
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="sm:max-w-[480px]">
         <DialogHeader>
           <DialogTitle>Adicionar Nova Imobiliária</DialogTitle>
           <DialogDescription>
@@ -76,7 +79,7 @@ export function AddImobiliariaForm() {
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8 pt-4">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 pt-2">
             <FormField
               control={form.control}
               name="name"
@@ -102,6 +105,30 @@ export function AddImobiliariaForm() {
                       placeholder="contato@imobiliaria.com"
                       {...field}
                     />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="status"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Status</FormLabel>
+                  <FormControl>
+                    <Select
+                      defaultValue={field.value}
+                      onValueChange={field.onChange}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Selecione o status" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="ativo">Ativo</SelectItem>
+                        <SelectItem value="inativo">Inativo</SelectItem>
+                      </SelectContent>
+                    </Select>
                   </FormControl>
                   <FormMessage />
                 </FormItem>

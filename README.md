@@ -23,9 +23,9 @@ Este documento descreve as tarefas necessárias para alinhar o desenvolvimento d
 #### Módulo Super-Admin
 
 **1. Gerenciamento de Imobiliárias (Tenants)**
--   [ ] **Melhorar Criação:** Adicionar campos `email_contato` e `plano_id` (inicialmente opcional) ao formulário de criação de imobiliária.
--   [ ] **Automação:** Implementar a criação automática de um usuário **Admin** padrão quando uma nova imobiliária for criada. O sistema deve enviar um e-mail de boas-vindas com um link para definir a senha.
--   [ ] **Edição:** Criar funcionalidade para o Super-Admin editar as informações de uma imobiliária existente.
+-   `[x]` **Melhorar Criação:** Adicionar campos `email_contato` e `plano_id` (inicialmente opcional) ao formulário de criação de imobiliária.
+-   `[x]` **Automação:** Implementar a criação automática de um usuário **Admin** padrão quando uma nova imobiliária for criada. O sistema deve enviar um e-mail de boas-vindas com um link para definir a senha.
+-   `[x]` **Edição:** Criar funcionalidade para o Super-Admin editar as informações de uma imobiliária existente.
 -   [ ] **Status da Conta:** Adicionar um campo `status` (`ativo`, `inativo`) na tabela `imobiliarias` e permitir que o Super-Admin altere esse status.
 -   [ ] **Planos de Assinatura:**
     -   [ ] Criar uma nova tabela `planos` no banco de dados.

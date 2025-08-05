@@ -39,6 +39,7 @@ export default async function ImobiliariasPage() {
               <TableRow>
                 <TableHead>Nome</TableHead>
                 <TableHead>Email de Contato</TableHead>
+                <TableHead>Status</TableHead>
                 <TableHead>Data de Criação</TableHead>
                 <TableHead className="text-right w-[80px]">Ações</TableHead>
               </TableRow>
@@ -48,6 +49,7 @@ export default async function ImobiliariasPage() {
                 <TableRow key={imobiliaria.id}>
                   <TableCell className="font-medium">{imobiliaria.name}</TableCell>
                   <TableCell>{imobiliaria.email_contato}</TableCell>
+                  <TableCell className="capitalize">{imobiliaria.status}</TableCell>
                   <TableCell>
                     {new Date(imobiliaria.created_at).toLocaleDateString(
                       "pt-BR",
@@ -65,7 +67,7 @@ export default async function ImobiliariasPage() {
               ))}
               {imobiliarias?.length === 0 && (
                 <TableRow>
-                  <TableCell colSpan={4} className="h-24 text-center">
+                  <TableCell colSpan={5} className="h-24 text-center">
                     Nenhuma imobiliária encontrada.
                   </TableCell>
                 </TableRow>

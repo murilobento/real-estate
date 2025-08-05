@@ -45,16 +45,19 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { updateImobiliaria, deleteImobiliaria } from "./actions";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 type Imobiliaria = {
   id: string;
   name: string;
   email_contato: string | null;
+  status?: "ativo" | "inativo";
 };
 
 const formSchema = z.object({
   name: z.string().min(2, { message: "O nome deve ter pelo menos 2 caracteres." }),
   email_contato: z.string().email({ message: "E-mail de contato inválido." }),
+  status: z.enum(["ativo", "inativo"]).default("ativo"),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -69,6 +72,7 @@ export function ImobiliariaRowActions({ imobiliaria }: { imobiliaria: Imobiliari
     defaultValues: {
       name: imobiliaria.name,
       email_contato: imobiliaria.email_contato || "",
+      status: imobiliaria.status || "ativo",
     },
   });
 
@@ -123,7 +127,7 @@ export function ImobiliariaRowActions({ imobiliaria }: { imobiliaria: Imobiliari
           </DropdownMenuContent>
         </DropdownMenu>
 
-        <DialogContent className="sm:max-w-[425px]">
+        <DialogContent className="sm:max-w-[480px]">
           <DialogHeader>
             <DialogTitle>Editar Imobiliária</DialogTitle>
             <DialogDescription>
@@ -131,7 +135,7 @@ export function ImobiliariaRowActions({ imobiliaria }: { imobiliaria: Imobiliari
             </DialogDescription>
           </DialogHeader>
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(onEditSubmit)} className="space-y-8 pt-4">
+            <form onSubmit={form.handleSubmit(onEditSubmit)} className="space-y-6 pt-2">
               <FormField
                 control={form.control}
                 name="name"
@@ -157,6 +161,30 @@ export function ImobiliariaRowActions({ imobiliaria }: { imobiliaria: Imobiliari
                         placeholder="contato@imobiliaria.com"
                         {...field}
                       />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="status"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Status</FormLabel>
+                    <FormControl>
+                      <Select
+                        defaultValue={field.value}
+                        onValueChange={field.onChange}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Selecione o status" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="ativo">Ativo</SelectItem>
+                          <SelectItem value="inativo">Inativo</SelectItem>
+                        </SelectContent>
+                      </Select>
                     </FormControl>
                     <FormMessage />
                   </FormItem>
