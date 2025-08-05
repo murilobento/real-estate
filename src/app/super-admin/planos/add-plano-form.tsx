@@ -2,12 +2,10 @@
 
 import { useTransition } from "react";
 import { useForm } from "react-hook-form";
-import { z } from "zod";
-import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 import { PlusCircle } from "lucide-react";
 
-import { planoSchema, createPlano } from "./actions";
+import { createPlano } from "./actions";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -29,12 +27,17 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 
-type FormValues = z.infer<typeof planoSchema>;
+type FormValues = {
+  name: string;
+  price_cents: number;
+  description?: string | null;
+  features?: string | null;
+};
 
 export function AddPlanoForm() {
   const [isPending, startTransition] = useTransition();
   const form = useForm<FormValues>({
-    resolver: zodResolver(planoSchema),
+    // Sem zodResolver no client
     defaultValues: {
       name: "",
       price_cents: 0,
@@ -46,7 +49,14 @@ export function AddPlanoForm() {
   const onSubmit = (values: FormValues) => {
     startTransition(async () => {
       try {
-        await createPlano(values);
+        // Coerção simples no client
+        const payload = {
+          ...values,
+          price_cents: Number.isFinite(values.price_cents) ? values.price_cents : 0,
+          description: values.description?.trim() || "",
+          features: values.features ?? "",
+        };
+        await createPlano(payload as any);
         toast.success("Plano criado com sucesso!");
         form.reset({ name: "", price_cents: 0, description: "", features: "" });
       } catch (e: any) {
@@ -73,6 +83,7 @@ export function AddPlanoForm() {
             <FormField
               control={form.control}
               name="name"
+              rules={{ required: "Informe o nome." }}
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Nome</FormLabel>
@@ -86,6 +97,7 @@ export function AddPlanoForm() {
             <FormField
               control={form.control}
               name="price_cents"
+              rules={{ min: { value: 0, message: "Preço deve ser >= 0" } }}
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Preço (centavos)</FormLabel>

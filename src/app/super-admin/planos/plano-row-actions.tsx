@@ -3,12 +3,10 @@
 import React from "react";
 import { useTransition } from "react";
 import { useForm } from "react-hook-form";
-import { z } from "zod";
-import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 import { MoreHorizontal, Pencil, Trash2 } from "lucide-react";
 
-import { planoSchema, updatePlano, deletePlano } from "./actions";
+import { updatePlano, deletePlano } from "./actions";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -45,14 +43,18 @@ type Plano = {
   features: string[] | null;
 };
 
-type FormValues = z.infer<typeof planoSchema>;
+type FormValues = {
+  name: string;
+  price_cents: number;
+  description?: string | null;
+  features?: string | null;
+};
 
 export function PlanoRowActions({ plano }: { plano: Plano }) {
   const [isPending, startTransition] = useTransition();
   const [isEditOpen, setIsEditOpen] = React.useState(false);
 
   const form = useForm<FormValues>({
-    resolver: zodResolver(planoSchema),
     defaultValues: {
       name: plano.name,
       price_cents: plano.price_cents,
@@ -64,7 +66,13 @@ export function PlanoRowActions({ plano }: { plano: Plano }) {
   const onSubmit = (values: FormValues) => {
     startTransition(async () => {
       try {
-        await updatePlano(plano.id, values);
+        const payload = {
+          ...values,
+          price_cents: Number.isFinite(values.price_cents) ? values.price_cents : 0,
+          description: values.description?.trim() || "",
+          features: values.features ?? "",
+        };
+        await updatePlano(plano.id, payload as any);
         toast.success("Plano atualizado com sucesso!");
         setIsEditOpen(false);
       } catch (e: any) {
@@ -121,6 +129,7 @@ export function PlanoRowActions({ plano }: { plano: Plano }) {
               <FormField
                 control={form.control}
                 name="name"
+                rules={{ required: "Informe o nome." }}
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Nome</FormLabel>
@@ -134,6 +143,7 @@ export function PlanoRowActions({ plano }: { plano: Plano }) {
               <FormField
                 control={form.control}
                 name="price_cents"
+                rules={{ min: { value: 0, message: "Preço deve ser >= 0" } }}
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Preço (centavos)</FormLabel>
