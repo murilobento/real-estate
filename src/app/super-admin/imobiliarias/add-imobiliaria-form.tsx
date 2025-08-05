@@ -30,6 +30,7 @@ const formSchema = z.object({
   name: z
     .string()
     .min(2, { message: "O nome deve ter pelo menos 2 caracteres." }),
+  email_contato: z.string().email({ message: "E-mail de contato inválido." }),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -45,6 +46,7 @@ export function AddImobiliariaForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: "",
+      email_contato: "",
     },
   });
 
@@ -73,7 +75,7 @@ export function AddImobiliariaForm({
         <DialogHeader>
           <DialogTitle>Adicionar Nova Imobiliária</DialogTitle>
           <DialogDescription>
-            Preencha o nome da nova imobiliária (tenant).
+            Preencha os dados da nova imobiliária (tenant).
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
@@ -86,6 +88,23 @@ export function AddImobiliariaForm({
                   <FormLabel>Nome</FormLabel>
                   <FormControl>
                     <Input placeholder="Nome da Imobiliária" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="email_contato"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Email de Contato</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="email"
+                      placeholder="contato@imobiliaria.com"
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

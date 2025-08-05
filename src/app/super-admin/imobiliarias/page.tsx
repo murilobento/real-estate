@@ -22,6 +22,7 @@ const formSchema = z.object({
   name: z
     .string()
     .min(2, { message: "O nome deve ter pelo menos 2 caracteres." }),
+  email_contato: z.string().email({ message: "E-mail de contato inválido." }),
 });
 
 export default async function ImobiliariasPage() {
@@ -40,9 +41,11 @@ export default async function ImobiliariasPage() {
       throw new Error("Dados inválidos.");
     }
 
-    const { name } = validatedFields.data;
+    const { name, email_contato } = validatedFields.data;
 
-    const { error } = await supabase.from("imobiliarias").insert({ name });
+    const { error } = await supabase
+      .from("imobiliarias")
+      .insert({ name, email_contato });
 
     if (error) {
       throw new Error(error.message);
@@ -68,6 +71,7 @@ export default async function ImobiliariasPage() {
             <TableHeader>
               <TableRow>
                 <TableHead>Nome</TableHead>
+                <TableHead>Email de Contato</TableHead>
                 <TableHead>Data de Criação</TableHead>
               </TableRow>
             </TableHeader>
@@ -75,18 +79,22 @@ export default async function ImobiliariasPage() {
               {imobiliarias?.map((imobiliaria) => (
                 <TableRow key={imobiliaria.id}>
                   <TableCell className="font-medium">{imobiliaria.name}</TableCell>
+                  <TableCell>{imobiliaria.email_contato}</TableCell>
                   <TableCell>
-                    {new Date(imobiliaria.created_at).toLocaleDateString("pt-BR", {
-                      day: '2-digit',
-                      month: '2-digit',
-                      year: 'numeric'
-                    })}
+                    {new Date(imobiliaria.created_at).toLocaleDateString(
+                      "pt-BR",
+                      {
+                        day: "2-digit",
+                        month: "2-digit",
+                        year: "numeric",
+                      }
+                    )}
                   </TableCell>
                 </TableRow>
               ))}
-               {imobiliarias?.length === 0 && (
+              {imobiliarias?.length === 0 && (
                 <TableRow>
-                  <TableCell colSpan={2} className="h-24 text-center">
+                  <TableCell colSpan={3} className="h-24 text-center">
                     Nenhuma imobiliária encontrada.
                   </TableCell>
                 </TableRow>
