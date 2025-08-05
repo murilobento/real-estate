@@ -1,6 +1,6 @@
 "use client";
 
-import { useTransition } from "react";
+import { useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { PlusCircle } from "lucide-react";
@@ -29,13 +29,13 @@ import { Textarea } from "@/components/ui/textarea";
 
 type FormValues = {
   name: string;
-  // Agora preço em reais (ex.: "399.90")
   price: string;
   description?: string | null;
   features?: string | null;
 };
 
 export function AddPlanoForm() {
+  const [open, setOpen] = useState(false);
   const [isPending, startTransition] = useTransition();
   const form = useForm<FormValues>({
     defaultValues: {
@@ -49,7 +49,6 @@ export function AddPlanoForm() {
   const onSubmit = (values: FormValues) => {
     startTransition(async () => {
       try {
-        // Normaliza vírgula para ponto e remove espaços
         const normalized = (values.price ?? "").toString().trim().replace(",", ".");
         const priceNumber = Number(normalized);
         if (!Number.isFinite(priceNumber) || priceNumber < 0) {
@@ -59,7 +58,6 @@ export function AddPlanoForm() {
 
         await createPlano({
           name: values.name,
-          // Envia como string de reais para ser convertido no server
           price_cents: priceNumber,
           description: values.description?.trim() || "",
           features: values.features ?? "",
@@ -67,6 +65,7 @@ export function AddPlanoForm() {
 
         toast.success("Plano criado com sucesso!");
         form.reset({ name: "", price: "", description: "", features: "" });
+        setOpen(false);
       } catch (e: any) {
         toast.error(e.message || "Falha ao criar plano.");
       }
@@ -74,7 +73,7 @@ export function AddPlanoForm() {
   };
 
   return (
-    <Dialog>
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button>
           <PlusCircle className="mr-2 h-4 w-4" />

@@ -53,6 +53,7 @@ type FormValues = {
 export function PlanoRowActions({ plano }: { plano: Plano }) {
   const [isPending, startTransition] = useTransition();
   const [isEditOpen, setIsEditOpen] = React.useState(false);
+  const [isDeleteOpen, setIsDeleteOpen] = React.useState(false);
 
   const form = useForm<FormValues>({
     defaultValues: {
@@ -86,6 +87,7 @@ export function PlanoRowActions({ plano }: { plano: Plano }) {
       try {
         await deletePlano(plano.id);
         toast.success("Plano excluído com sucesso!");
+        setIsDeleteOpen(false);
       } catch (e: any) {
         toast.error(e.message || "Falha ao excluir plano.");
       }
@@ -109,7 +111,7 @@ export function PlanoRowActions({ plano }: { plano: Plano }) {
           </DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem
-            onSelect={onDelete}
+            onSelect={() => setIsDeleteOpen(true)}
             className="text-destructive focus:text-destructive"
           >
             <Trash2 className="mr-2 h-4 w-4" />
@@ -201,6 +203,25 @@ export function PlanoRowActions({ plano }: { plano: Plano }) {
               </DialogFooter>
             </form>
           </Form>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={isDeleteOpen} onOpenChange={setIsDeleteOpen}>
+        <DialogContent className="sm:max-w-[420px]">
+          <DialogHeader>
+            <DialogTitle>Você tem certeza?</DialogTitle>
+            <DialogDescription>
+              Essa ação não pode ser desfeita. O plano será excluído permanentemente.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsDeleteOpen(false)}>
+              Cancelar
+            </Button>
+            <Button className="bg-destructive hover:bg-destructive/90" onClick={onDelete} disabled={isPending}>
+              {isPending ? "Excluindo..." : "Excluir"}
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
     </>
