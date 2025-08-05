@@ -13,6 +13,10 @@ export default {
         'hero-pattern': "url('/hero-image.jpg')",
       },
   		colors: {
+        teal: {
+          '500': '#00A79D',
+          '600': '#008E85',
+        },
   			background: 'hsl(var(--background))',
   			foreground: 'hsl(var(--foreground))',
   			card: {

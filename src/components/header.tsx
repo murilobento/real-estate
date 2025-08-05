@@ -1,13 +1,15 @@
 "use client";
 
-import { Building2, Menu } from "lucide-react";
+import { Menu, MessageCircle } from "lucide-react";
 import { Button } from "./ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "./ui/sheet";
 import Link from "next/link";
 
 export const Header = () => {
   const navLinks = [
+    { href: "#home", label: "Início" },
     { href: "#about", label: "Sobre" },
+    { href: "#services", label: "Serviços" },
     { href: "#properties", label: "Imóveis" },
     { href: "#contact", label: "Contato" },
   ];
@@ -17,9 +19,8 @@ export const Header = () => {
       <div className="container flex h-16 items-center">
         <div className="mr-4 flex items-center">
           <Link href="/" className="mr-6 flex items-center space-x-2">
-            <Building2 className="h-6 w-6 text-primary" />
-            <span className="font-bold text-lg">
-              Imobiliária
+            <span className="font-bold text-xl">
+              JR Imóveis
             </span>
           </Link>
         </div>
@@ -35,6 +36,10 @@ export const Header = () => {
               </a>
             ))}
           </nav>
+          <Button className="hidden sm:flex items-center gap-2 bg-green-500 hover:bg-green-600">
+            <MessageCircle className="h-4 w-4" />
+            WhatsApp
+          </Button>
           <div className="md:hidden">
             <Sheet>
               <SheetTrigger asChild>
@@ -54,6 +59,10 @@ export const Header = () => {
                       {link.label}
                     </a>
                   ))}
+                   <Button className="w-fit flex items-center gap-2 mt-4 bg-green-500 hover:bg-green-600">
+                    <MessageCircle className="h-4 w-4" />
+                    WhatsApp
+                  </Button>
                 </div>
               </SheetContent>
             </Sheet>

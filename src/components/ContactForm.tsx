@@ -12,6 +12,7 @@ import { toast } from "sonner";
 const formSchema = z.object({
   name: z.string().min(2, "O nome deve ter pelo menos 2 caracteres."),
   email: z.string().email("Por favor, insira um email válido."),
+  phone: z.string().min(10, "Por favor, insira um telefone válido."),
   message: z.string().min(10, "A mensagem deve ter pelo menos 10 caracteres."),
 });
 
@@ -21,13 +22,13 @@ export const ContactForm = () => {
     defaultValues: {
       name: "",
       email: "",
+      phone: "",
       message: "",
     },
   });
 
   function onSubmit(values: z.infer<typeof formSchema>) {
     console.log(values);
-    // Aqui você normalmente enviaria os dados do formulário para o seu backend
     toast.success("Mensagem enviada com sucesso! Entraremos em contato em breve.");
     form.reset();
   }
@@ -53,9 +54,22 @@ export const ContactForm = () => {
           name="email"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Email</FormLabel>
+              <FormLabel>E-mail</FormLabel>
               <FormControl>
-                <Input placeholder="seu@email.com" {...field} />
+                <Input type="email" placeholder="seu@email.com" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="phone"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Telefone</FormLabel>
+              <FormControl>
+                <Input type="tel" placeholder="(99) 99999-9999" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -68,13 +82,13 @@ export const ContactForm = () => {
             <FormItem>
               <FormLabel>Mensagem</FormLabel>
               <FormControl>
-                <Textarea placeholder="Como podemos ajudar?" className="resize-none" {...field} />
+                <Textarea placeholder="Digite sua mensagem (mínimo 20 caracteres)" className="resize-none" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
           )}
         />
-        <Button type="submit" className="w-full">Enviar Mensagem</Button>
+        <Button type="submit" className="w-full bg-teal-500 hover:bg-teal-600">Enviar Mensagem</Button>
       </form>
     </Form>
   );
