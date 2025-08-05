@@ -1,18 +1,8 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { z } from "zod";
 import { createClient } from "@/integrations/supabase/server";
-
-export const planoSchema = z.object({
-  name: z.string().min(2, "O nome deve ter pelo menos 2 caracteres."),
-  price_cents: z.coerce.number().int().nonnegative("Preço deve ser positivo."),
-  description: z.string().optional().nullable(),
-  // Importante: no client enviamos SEMPRE string (textarea); normalizamos aqui
-  features: z.string().optional().nullable(),
-});
-
-export type PlanoInput = z.infer<typeof planoSchema>;
+import { planoSchema, type PlanoInput } from "./schema";
 
 function normalizeFeatures(input: string | null | undefined): string[] | null {
   if (!input) return null;
