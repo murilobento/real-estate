@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { ShieldCheck, Menu } from "lucide-react";
+import { ShieldCheck, Menu, LogOut } from "lucide-react";
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "@/components/ui/resizable";
 import { Separator } from "@/components/ui/separator";
 import { SuperAdminNav } from "./nav";
@@ -9,6 +9,8 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
+import { createClient } from "@/integrations/supabase/client";
+import { useRouter } from "next/navigation";
 
 export default function SuperAdminLayout({
   children,
@@ -18,10 +20,20 @@ export default function SuperAdminLayout({
   const isMobile = useIsMobile();
   const [isCollapsed, setIsCollapsed] = React.useState(isMobile);
   const [open, setOpen] = React.useState(false);
+  const supabase = createClient();
+  const router = useRouter();
 
   React.useEffect(() => {
     setIsCollapsed(isMobile);
   }, [isMobile]);
+
+  async function handleLogout() {
+    setOpen(false);
+    await supabase.auth.signOut();
+    // Super-admin: voltar para a landing
+    router.push("/");
+    router.refresh();
+  }
 
   const nav = (
     <>
@@ -32,9 +44,14 @@ export default function SuperAdminLayout({
         </Link>
       </div>
       <Separator />
-      {/* Fecha ao clicar em qualquer item do menu */}
       <div onClick={() => setOpen(false)}>
         <SuperAdminNav />
+      </div>
+      <div className="mt-auto p-3">
+        <Button variant="outline" className="w-full flex items-center gap-2" onClick={handleLogout}>
+          <LogOut className="h-4 w-4" />
+          Sair
+        </Button>
       </div>
     </>
   );
@@ -94,6 +111,12 @@ export default function SuperAdminLayout({
           </div>
           <Separator />
           <SuperAdminNav />
+          <div className="mt-auto p-3">
+            <Button variant="outline" className="w-full flex items-center gap-2" onClick={handleLogout}>
+              <LogOut className="h-4 w-4" />
+              Sair
+            </Button>
+          </div>
         </div>
       </ResizablePanel>
       <ResizableHandle withHandle />

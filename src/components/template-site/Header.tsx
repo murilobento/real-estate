@@ -1,13 +1,17 @@
 "use client";
 
 import { useState } from "react";
-import { Menu, MessageCircle } from "lucide-react";
+import { Menu, MessageCircle, LogOut } from "lucide-react";
 import { Button } from "./ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, SheetTrigger } from "./ui/sheet";
 import Link from "next/link";
+import { createClient } from "@/integrations/supabase/client";
+import { useRouter } from "next/navigation";
 
 export const Header = () => {
   const [open, setOpen] = useState(false);
+  const supabase = createClient();
+  const router = useRouter();
 
   const navLinks = [
     { href: "#home", label: "Início" },
@@ -16,6 +20,14 @@ export const Header = () => {
     { href: "#properties", label: "Imóveis" },
     { href: "#contact", label: "Contato" },
   ];
+
+  async function handleLogout() {
+    setOpen(false);
+    await supabase.auth.signOut();
+    // Como estamos no site público, após sair levamos para a landing
+    router.push("/");
+    router.refresh();
+  }
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -68,11 +80,19 @@ export const Header = () => {
                     </a>
                   ))}
                   <Button
-                    className="w-fit flex items-center gap-2 mt-4 bg-green-500 hover:bg-green-600"
+                    className="w-fit flex items-center gap-2 mt-2 bg-green-500 hover:bg-green-600"
                     onClick={() => setOpen(false)}
                   >
                     <MessageCircle className="h-4 w-4" />
                     WhatsApp
+                  </Button>
+                  <Button
+                    variant="outline"
+                    className="w-fit flex items-center gap-2 mt-6"
+                    onClick={handleLogout}
+                  >
+                    <LogOut className="h-4 w-4" />
+                    Sair
                   </Button>
                 </div>
               </SheetContent>

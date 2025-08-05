@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { Building2, Menu } from "lucide-react";
+import { Building2, Menu, LogOut } from "lucide-react";
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "@/components/ui/resizable";
 import { Separator } from "@/components/ui/separator";
 import { Nav } from "@/components/nav";
@@ -9,6 +9,8 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
+import { createClient } from "@/integrations/supabase/client";
+import { useRouter } from "next/navigation";
 
 export default function AdminLayout({
   children,
@@ -18,10 +20,20 @@ export default function AdminLayout({
   const isMobile = useIsMobile();
   const [isCollapsed, setIsCollapsed] = React.useState(isMobile);
   const [open, setOpen] = React.useState(false);
+  const supabase = createClient();
+  const router = useRouter();
 
   React.useEffect(() => {
     setIsCollapsed(isMobile);
   }, [isMobile]);
+
+  async function handleLogout() {
+    setOpen(false);
+    await supabase.auth.signOut();
+    // Admin: levar para o site da imobiliária (usaremos a página template-site existente)
+    router.push("/template-site");
+    router.refresh();
+  }
 
   const nav = (
     <>
@@ -32,9 +44,14 @@ export default function AdminLayout({
         </Link>
       </div>
       <Separator />
-      {/* Nav já usa <Link>, então fechamos o Sheet via captura no container */}
       <div onClick={() => setOpen(false)}>
         <Nav />
+      </div>
+      <div className="mt-auto p-3">
+        <Button variant="outline" className="w-full flex items-center gap-2" onClick={handleLogout}>
+          <LogOut className="h-4 w-4" />
+          Sair
+        </Button>
       </div>
     </>
   );
@@ -94,6 +111,12 @@ export default function AdminLayout({
           </div>
           <Separator />
           <Nav />
+          <div className="mt-auto p-3">
+            <Button variant="outline" className="w-full flex items-center gap-2" onClick={handleLogout}>
+              <LogOut className="h-4 w-4" />
+              Sair
+            </Button>
+          </div>
         </div>
       </ResizablePanel>
       <ResizableHandle withHandle />
