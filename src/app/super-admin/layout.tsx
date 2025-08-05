@@ -30,7 +30,6 @@ export default function SuperAdminLayout({
   async function handleLogout() {
     setOpen(false);
     await supabase.auth.signOut();
-    // Super-admin: voltar para a landing
     router.push("/");
     router.refresh();
   }
@@ -47,6 +46,7 @@ export default function SuperAdminLayout({
       <div onClick={() => setOpen(false)}>
         <SuperAdminNav />
       </div>
+      {/* Botão Sair também na sidebar (desktop e mobile via Sheet) */}
       <div className="mt-auto p-3">
         <Button variant="outline" className="w-full flex items-center gap-2" onClick={handleLogout}>
           <LogOut className="h-4 w-4" />
@@ -112,7 +112,11 @@ export default function SuperAdminLayout({
           <Separator />
           <SuperAdminNav />
           <div className="mt-auto p-3">
-            <Button variant="outline" className="w-full flex items-center gap-2" onClick={handleLogout}>
+            <Button variant="outline" className="w-full flex items-center gap-2" onClick={async () => {
+              await supabase.auth.signOut();
+              router.push("/");
+              router.refresh();
+            }}>
               <LogOut className="h-4 w-4" />
               Sair
             </Button>

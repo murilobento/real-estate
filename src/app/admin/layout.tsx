@@ -30,7 +30,6 @@ export default function AdminLayout({
   async function handleLogout() {
     setOpen(false);
     await supabase.auth.signOut();
-    // Admin: levar para o site da imobiliária (usaremos a página template-site existente)
     router.push("/template-site");
     router.refresh();
   }
@@ -47,6 +46,7 @@ export default function AdminLayout({
       <div onClick={() => setOpen(false)}>
         <Nav />
       </div>
+      {/* Botão Sair também na sidebar (desktop e mobile via Sheet) */}
       <div className="mt-auto p-3">
         <Button variant="outline" className="w-full flex items-center gap-2" onClick={handleLogout}>
           <LogOut className="h-4 w-4" />
@@ -112,7 +112,11 @@ export default function AdminLayout({
           <Separator />
           <Nav />
           <div className="mt-auto p-3">
-            <Button variant="outline" className="w-full flex items-center gap-2" onClick={handleLogout}>
+            <Button variant="outline" className="w-full flex items-center gap-2" onClick={async () => {
+              await supabase.auth.signOut();
+              router.push("/template-site");
+              router.refresh();
+            }}>
               <LogOut className="h-4 w-4" />
               Sair
             </Button>
