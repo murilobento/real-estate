@@ -48,7 +48,7 @@ export default async function ImobiliariasPage() {
       throw new Error(error.message);
     }
 
-    revalidatePath("/admin/imobiliarias");
+    revalidatePath("/super-admin/imobiliarias");
   }
 
   return (
