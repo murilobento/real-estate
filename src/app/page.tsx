@@ -4,8 +4,23 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Check, Globe, LayoutTemplate, Users, Zap } from "lucide-react";
 import Link from "next/link";
+import { createClient } from "@/integrations/supabase/server";
 
-export default function LandingPage() {
+function formatBRLFromCents(cents: number) {
+  const value = (cents ?? 0) / 100;
+  return value.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+}
+
+async function getPlanos() {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("planos")
+    .select("*")
+    .order("price_cents", { ascending: true });
+  return data || [];
+}
+
+export default async function LandingPage() {
   const features = [
     {
       icon: <Globe className="h-8 w-8 text-teal-500" />,
@@ -29,11 +44,12 @@ export default function LandingPage() {
     },
   ];
 
+  const planos = await getPlanos();
+
   return (
     <div className="flex flex-col min-h-screen bg-background">
       <LandingHeader />
       <main className="flex-1">
-        {/* Hero Section */}
         <section className="w-full py-20 md:py-32 lg:py-40 bg-secondary">
           <div className="container px-4 md:px-6 text-center">
             <h1 className="text-4xl font-bold tracking-tight sm:text-5xl md:text-6xl">
@@ -53,7 +69,6 @@ export default function LandingPage() {
           </div>
         </section>
 
-        {/* Features Section */}
         <section id="features" className="w-full py-12 md:py-24 lg:py-32">
           <div className="container px-4 md:px-6">
             <div className="space-y-4 text-center mb-12">
@@ -74,7 +89,6 @@ export default function LandingPage() {
           </div>
         </section>
 
-        {/* Pricing Section */}
         <section id="pricing" className="w-full py-12 md:py-24 lg:py-32 bg-secondary">
           <div className="container px-4 md:px-6">
             <div className="space-y-4 text-center mb-12">
@@ -83,59 +97,47 @@ export default function LandingPage() {
                 Escolha o plano que melhor se adapta ao tamanho e momento da sua imobiliária.
               </p>
             </div>
-            <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3 max-w-5xl mx-auto">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Essencial</CardTitle>
-                  <CardDescription>Para quem está começando</CardDescription>
-                  <p className="text-4xl font-bold pt-4">R$199<span className="text-lg font-normal text-muted-foreground">/mês</span></p>
-                </CardHeader>
-                <CardContent className="space-y-2">
-                  <p className="flex items-center"><Check className="h-4 w-4 mr-2 text-green-500" />Site Institucional</p>
-                  <p className="flex items-center"><Check className="h-4 w-4 mr-2 text-green-500" />Até 5 Usuários</p>
-                  <p className="flex items-center"><Check className="h-4 w-4 mr-2 text-green-500" />Gestão de Imóveis</p>
-                  <p className="flex items-center"><Check className="h-4 w-4 mr-2 text-green-500" />CRM de Clientes</p>
-                </CardContent>
-                <CardFooter>
-                  <Button className="w-full">Assinar Plano</Button>
-                </CardFooter>
-              </Card>
-              <Card className="border-teal-500 border-2 relative">
-                <div className="absolute top-0 -translate-y-1/2 w-full flex justify-center">
-                  <div className="bg-teal-500 text-white px-4 py-1 rounded-full text-sm font-semibold">Mais Popular</div>
-                </div>
-                <CardHeader>
-                  <CardTitle>Profissional</CardTitle>
-                  <CardDescription>Para imobiliárias em crescimento</CardDescription>
-                  <p className="text-4xl font-bold pt-4">R$399<span className="text-lg font-normal text-muted-foreground">/mês</span></p>
-                </CardHeader>
-                <CardContent className="space-y-2">
-                  <p className="flex items-center"><Check className="h-4 w-4 mr-2 text-green-500" />Tudo do plano Essencial</p>
-                  <p className="flex items-center"><Check className="h-4 w-4 mr-2 text-green-500" />Até 20 Usuários</p>
-                  <p className="flex items-center"><Check className="h-4 w-4 mr-2 text-green-500" />Agenda Integrada</p>
-                  <p className="flex items-center"><Check className="h-4 w-4 mr-2 text-green-500" />Relatórios Avançados</p>
-                </CardContent>
-                <CardFooter>
-                  <Button className="w-full bg-teal-500 hover:bg-teal-600">Assinar Plano</Button>
-                </CardFooter>
-              </Card>
-              <Card>
-                <CardHeader>
-                  <CardTitle>Enterprise</CardTitle>
-                  <CardDescription>Para grandes operações</CardDescription>
-                  <p className="text-4xl font-bold pt-4">Contato</p>
-                </CardHeader>
-                <CardContent className="space-y-2">
-                  <p className="flex items-center"><Check className="h-4 w-4 mr-2 text-green-500" />Tudo do plano Profissional</p>
-                  <p className="flex items-center"><Check className="h-4 w-4 mr-2 text-green-500" />Usuários Ilimitados</p>
-                  <p className="flex items-center"><Check className="h-4 w-4 mr-2 text-green-500" />Integrações Customizadas</p>
-                  <p className="flex items-center"><Check className="h-4 w-4 mr-2 text-green-500" />Suporte Premium</p>
-                </CardContent>
-                <CardFooter>
-                  <Button variant="outline" className="w-full">Fale Conosco</Button>
-                </CardFooter>
-              </Card>
-            </div>
+
+            {planos.length > 0 ? (
+              <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3 max-w-5xl mx-auto">
+                {planos.map((plano, idx) => (
+                  <Card key={plano.id} className={idx === 1 ? "border-teal-500 border-2 relative" : ""}>
+                    {idx === 1 && (
+                      <div className="absolute top-0 -translate-y-1/2 w-full flex justify-center">
+                        <div className="bg-teal-500 text-white px-4 py-1 rounded-full text-sm font-semibold">Mais Popular</div>
+                      </div>
+                    )}
+                    <CardHeader>
+                      <CardTitle>{plano.name}</CardTitle>
+                      <CardDescription>{plano.description || "—"}</CardDescription>
+                      <p className="text-4xl font-bold pt-4">
+                        {formatBRLFromCents(plano.price_cents)}
+                        <span className="text-lg font-normal text-muted-foreground">/mês</span>
+                      </p>
+                    </CardHeader>
+                    <CardContent className="space-y-2">
+                      {Array.isArray(plano.features) && plano.features.length > 0 ? (
+                        plano.features.slice(0, 6).map((f: string, i: number) => (
+                          <p key={i} className="flex items-center">
+                            <Check className="h-4 w-4 mr-2 text-green-500" />
+                            {f}
+                          </p>
+                        ))
+                      ) : (
+                        <p className="text-muted-foreground">Sem recursos listados.</p>
+                      )}
+                    </CardContent>
+                    <CardFooter>
+                      <Button className={idx === 1 ? "w-full bg-teal-500 hover:bg-teal-600" : "w-full"}>
+                        Assinar Plano
+                      </Button>
+                    </CardFooter>
+                  </Card>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center text-muted-foreground">Nenhum plano disponível no momento.</div>
+            )}
           </div>
         </section>
       </main>
