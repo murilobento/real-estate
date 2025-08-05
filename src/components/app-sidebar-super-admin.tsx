@@ -38,7 +38,6 @@ export function AppSidebarSuperAdmin() {
 
   return (
     <Sidebar collapsible="icon" side="left" variant="sidebar">
-      {/* Workspace card */}
       <SidebarHeader>
         <div className="rounded-lg border px-3 py-2 hover:bg-accent/50">
           <div className="flex items-center justify-between">
@@ -80,7 +79,6 @@ export function AppSidebarSuperAdmin() {
         </SidebarGroup>
       </SidebarContent>
 
-      {/* Footer profile card */}
       <SidebarFooter>
         <div className="rounded-lg border p-2">
           <div className="flex items-center gap-3 px-1">

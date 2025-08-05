@@ -5,7 +5,6 @@ import { ChevronLeft } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 type SidebarContextType = {
-  state: "expanded" | "collapsed"
   open: boolean
   setOpen: (open: boolean | ((val: boolean) => boolean)) => void
   openMobile: boolean
@@ -16,13 +15,13 @@ type SidebarContextType = {
 
 const SidebarContext = React.createContext<SidebarContextType | null>(null)
 
-const SIDEBAR_COOKIE_NAME = "sidebar_state"
+const SIDEBAR_COOKIE = "sidebar_state"
 const SIDEBAR_COOKIE_MAX_AGE = 60 * 60 * 24 * 365
-const SIDEBAR_SHORTCUT = "b"
+const SHORTCUT_KEY = "b"
 
 const WIDTH_EXPANDED = "16rem" // 256px
 const WIDTH_COLLAPSED = "4rem" // 64px
-const WIDTH_MOBILE = "18rem"
+const WIDTH_MOBILE = "18rem" // 288px
 
 export function SidebarProvider({
   children,
@@ -48,18 +47,20 @@ export function SidebarProvider({
     if (typeof document === "undefined") return true
     const cookie = document.cookie
       .split("; ")
-      .find((c) => c.startsWith(`${SIDEBAR_COOKIE_NAME}=`))
+      .find((c) => c.startsWith(`${SIDEBAR_COOKIE}=`))
       ?.split("=")[1]
-    return cookie === undefined ? true : cookie === "true"
+    if (cookie === undefined) return true
+    return cookie === "true"
   })
 
   const open = typeof controlledOpen === "boolean" ? controlledOpen : uncontrolledOpen
 
   React.useEffect(() => {
-    const resize = () => setIsMobile(window.matchMedia("(max-width: 768px)").matches)
-    resize()
-    window.addEventListener("resize", resize)
-    return () => window.removeEventListener("resize", resize)
+    const onResize = () =>
+      setIsMobile(window.matchMedia("(max-width: 768px)").matches)
+    onResize()
+    window.addEventListener("resize", onResize)
+    return () => window.removeEventListener("resize", onResize)
   }, [])
 
   const setOpen = React.useCallback(
@@ -67,7 +68,7 @@ export function SidebarProvider({
       const next = typeof value === "function" ? value(open) : value
       if (onOpenChange) onOpenChange(next)
       else _setUncontrolledOpen(next)
-      document.cookie = `${SIDEBAR_COOKIE_NAME}=${next}; path=/; max-age=${SIDEBAR_COOKIE_MAX_AGE}`
+      document.cookie = `${SIDEBAR_COOKIE}=${next}; path=/; max-age=${SIDEBAR_COOKIE_MAX_AGE}`
     },
     [onOpenChange, open]
   )
@@ -81,7 +82,7 @@ export function SidebarProvider({
     const onKey = (e: KeyboardEvent) => {
       const isMac = /(Mac|iPhone|iPod|iPad)/i.test(navigator.platform)
       const mod = isMac ? e.metaKey : e.ctrlKey
-      if (mod && e.key.toLowerCase() === SIDEBAR_SHORTCUT) {
+      if (mod && e.key.toLowerCase() === SHORTCUT_KEY) {
         e.preventDefault()
         toggleSidebar()
       }
@@ -91,7 +92,6 @@ export function SidebarProvider({
   }, [toggleSidebar])
 
   const ctx: SidebarContextType = {
-    state: open ? "expanded" : "collapsed",
     open,
     setOpen,
     openMobile,
@@ -130,7 +130,7 @@ export function useSidebar() {
 type SidebarProps = React.HTMLAttributes<HTMLDivElement> & {
   side?: "left" | "right"
   variant?: "sidebar" | "floating" | "inset"
-  collapsible?: "icon" | "none" | "offcanvas"
+  collapsible?: "icon" | "none"
 }
 
 export const Sidebar = React.forwardRef<HTMLDivElement, SidebarProps>(
@@ -149,11 +149,11 @@ export const Sidebar = React.forwardRef<HTMLDivElement, SidebarProps>(
         data-collapsible={collapsible}
         data-state={isOpen ? "open" : "closed"}
         className={cn(
-          // Container branco, borda e sombra sutil (tema claro)
-          "group/sidebar fixed inset-y-0 z-40 bg-white text-foreground border border-border rounded-xl shadow-sm",
-          "transition-[width,transform] ease-in-out m-2",
+          // Base do container (tema claro)
+          "group/sidebar fixed inset-y-0 z-40 m-2 rounded-xl border bg-white text-foreground shadow-sm",
+          "transition-[width,transform] ease-in-out will-change-transform",
           side === "left" ? "left-0" : "right-0",
-          // Width & Offcanvas
+          // Largura e offcanvas
           isMobile
             ? [
                 "w-[--sidebar-width-mobile]",
@@ -176,13 +176,13 @@ export const Sidebar = React.forwardRef<HTMLDivElement, SidebarProps>(
 
 export function SidebarHeader({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) {
   return (
-    <div className={cn("px-2 py-2 bg-white/95 sticky top-0 z-10", className)} {...props} />
+    <div className={cn("sticky top-0 z-10 bg-white/95 px-2 py-2", className)} {...props} />
   )
 }
 
 export function SidebarFooter({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) {
   return (
-    <div className={cn("px-2 py-2 bg-white/95 sticky bottom-0 z-10", className)} {...props} />
+    <div className={cn("sticky bottom-0 z-10 bg-white/95 px-2 py-2", className)} {...props} />
   )
 }
 
