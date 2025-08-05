@@ -157,10 +157,14 @@ export const Sidebar = React.forwardRef<HTMLDivElement, SidebarProps>(
         data-side={side}
         data-state={isOpen ? "open" : "closed"}
         className={cn(
-          "group/sidebar fixed inset-y-0 z-40 border-r bg-sidebar text-sidebar-foreground transition-[width,transform] ease-in-out",
+          "group/sidebar fixed inset-y-0 z-40 bg-sidebar text-sidebar-foreground transition-[width,transform] ease-in-out",
+          // card-like
+          "m-2 rounded-xl border border-sidebar-border shadow-sm",
+          // side position
           side === "left" ? "left-0" : "right-0",
-          variant === "floating" && "m-2 rounded-xl border shadow-lg",
-          variant === "inset" && "m-4 rounded-xl border shadow",
+          // variant styles (we keep 'sidebar' appearance)
+          variant === "floating" && "shadow-lg",
+          // widths
           isMobile
             ? [
                 "w-[--sidebar-width-mobile] translate-x-0",
@@ -170,9 +174,11 @@ export const Sidebar = React.forwardRef<HTMLDivElement, SidebarProps>(
                 collapsible === "icon"
                   ? isOpen
                     ? "w-[--sidebar-width]"
-                    : "w-14"
+                    : "w-16"
                   : "w-[--sidebar-width]",
               ],
+          // right separator/border to content
+          "after:pointer-events-none after:absolute after:inset-y-2 after:-right-2 after:w-px after:bg-sidebar-border",
           className
         )}
         {...props}
@@ -182,11 +188,27 @@ export const Sidebar = React.forwardRef<HTMLDivElement, SidebarProps>(
 )
 
 export function SidebarHeader({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) {
-  return <div className={cn("sticky top-0 z-10 bg-sidebar px-3 py-2", className)} {...props} />
+  return (
+    <div
+      className={cn(
+        "sticky top-0 z-10 bg-sidebar/95 px-2 py-2",
+        className
+      )}
+      {...props}
+    />
+  )
 }
 
 export function SidebarFooter({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) {
-  return <div className={cn("sticky bottom-0 z-10 bg-sidebar px-3 py-2", className)} {...props} />
+  return (
+    <div
+      className={cn(
+        "sticky bottom-0 z-10 bg-sidebar/95 px-2 py-2",
+        className
+      )}
+      {...props}
+    />
+  )
 }
 
 export function SidebarContent({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) {
@@ -239,7 +261,7 @@ export function SidebarMenuButton({
     <Comp
       data-active={isActive ? "true" : "false"}
       className={cn(
-        "group/menu-button flex w-full items-center gap-2 rounded-md px-2.5 py-2 text-sm text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground data-[active=true]:bg-sidebar-accent data-[active=true]:text-sidebar-accent-foreground",
+        "group/menu-button flex w-full items-center gap-2 rounded-md px-2.5 py-2 text-sm hover:bg-sidebar-accent hover:text-sidebar-accent-foreground data-[active=true]:bg-sidebar-accent data-[active=true]:text-sidebar-accent-foreground",
         "transition-colors",
         className
       )}
@@ -316,7 +338,7 @@ export function SidebarInset({ className, ...props }: React.HTMLAttributes<HTMLD
           ? "ml-0"
           : isOpen
           ? "ml-[--sidebar-width]"
-          : "ml-14",
+          : "ml-16",
         className
       )}
       {...props}

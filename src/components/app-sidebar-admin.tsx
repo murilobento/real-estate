@@ -53,7 +53,6 @@ export function AppSidebarAdmin() {
 
   return (
     <Sidebar collapsible="icon" side="left" variant="sidebar" className="rounded-xl m-2">
-      {/* Header estilo workspace */}
       <SidebarHeader>
         <div className="flex items-center justify-between rounded-md px-3 py-2 hover:bg-sidebar-accent">
           <div className="flex items-center gap-3">
@@ -69,7 +68,6 @@ export function AppSidebarAdmin() {
         </div>
       </SidebarHeader>
 
-      {/* Conteúdo com grupo Platform */}
       <SidebarContent>
         <SidebarGroup className="mt-2">
           <SidebarGroupLabel>Platform</SidebarGroupLabel>
@@ -91,7 +89,6 @@ export function AppSidebarAdmin() {
         </SidebarGroup>
       </SidebarContent>
 
-      {/* Footer com “perfil” e opção de sair */}
       <SidebarFooter>
         <SidebarMenu>
           <SidebarMenuItem>
