@@ -1,11 +1,14 @@
 "use client";
 
+import { useState } from "react";
 import { Menu, MessageCircle } from "lucide-react";
 import { Button } from "./ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, SheetTrigger } from "./ui/sheet";
 import Link from "next/link";
 
 export const Header = () => {
+  const [open, setOpen] = useState(false);
+
   const navLinks = [
     { href: "#home", label: "Início" },
     { href: "#about", label: "Sobre" },
@@ -19,9 +22,7 @@ export const Header = () => {
       <div className="container flex h-16 items-center justify-between">
         <div className="flex items-center">
           <Link href="/" className="flex items-center space-x-2">
-            <span className="font-bold text-xl">
-              JR Imóveis
-            </span>
+            <span className="font-bold text-xl">JR Imóveis</span>
           </Link>
         </div>
         
@@ -43,9 +44,9 @@ export const Header = () => {
             WhatsApp
           </Button>
           <div className="md:hidden">
-            <Sheet>
+            <Sheet open={open} onOpenChange={setOpen}>
               <SheetTrigger asChild>
-                <Button variant="ghost" size="icon">
+                <Button variant="ghost" size="icon" onClick={() => setOpen(true)}>
                   <Menu className="h-5 w-5" />
                   <span className="sr-only">Toggle Menu</span>
                 </Button>
@@ -61,11 +62,15 @@ export const Header = () => {
                       key={link.href}
                       href={link.href}
                       className="text-lg font-medium text-foreground hover:text-foreground/80"
+                      onClick={() => setOpen(false)}
                     >
                       {link.label}
                     </a>
                   ))}
-                   <Button className="w-fit flex items-center gap-2 mt-4 bg-green-500 hover:bg-green-600">
+                  <Button
+                    className="w-fit flex items-center gap-2 mt-4 bg-green-500 hover:bg-green-600"
+                    onClick={() => setOpen(false)}
+                  >
                     <MessageCircle className="h-4 w-4" />
                     WhatsApp
                   </Button>

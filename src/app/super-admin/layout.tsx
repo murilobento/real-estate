@@ -8,6 +8,7 @@ import { SuperAdminNav } from "./nav";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
+import Link from "next/link";
 
 export default function SuperAdminLayout({
   children,
@@ -16,6 +17,7 @@ export default function SuperAdminLayout({
 }) {
   const isMobile = useIsMobile();
   const [isCollapsed, setIsCollapsed] = React.useState(isMobile);
+  const [open, setOpen] = React.useState(false);
 
   React.useEffect(() => {
     setIsCollapsed(isMobile);
@@ -24,13 +26,16 @@ export default function SuperAdminLayout({
   const nav = (
     <>
       <div className="flex h-[52px] items-center justify-center px-2">
-        <a href="/super-admin" className="flex items-center gap-2 font-semibold">
+        <Link href="/super-admin" className="flex items-center gap-2 font-semibold" onClick={() => setOpen(false)}>
           <ShieldCheck className="h-6 w-6" />
           <span className={isCollapsed ? "sr-only" : ""}>Super Admin</span>
-        </a>
+        </Link>
       </div>
       <Separator />
-      <SuperAdminNav />
+      {/* Fecha ao clicar em qualquer item do menu */}
+      <div onClick={() => setOpen(false)}>
+        <SuperAdminNav />
+      </div>
     </>
   );
 
@@ -38,9 +43,9 @@ export default function SuperAdminLayout({
     return (
       <div className="flex flex-col h-screen">
         <header className="flex h-14 items-center gap-4 border-b bg-muted/40 px-4 lg:h-[60px] lg:px-6">
-          <Sheet>
+          <Sheet open={open} onOpenChange={setOpen}>
             <SheetTrigger asChild>
-              <Button variant="outline" size="icon" className="shrink-0 md:hidden">
+              <Button variant="outline" size="icon" className="shrink-0 md:hidden" onClick={() => setOpen(true)}>
                 <Menu className="h-5 w-5" />
                 <span className="sr-only">Abrir menu</span>
               </Button>
@@ -80,7 +85,16 @@ export default function SuperAdminLayout({
         onExpand={() => setIsCollapsed(false)}
         className="min-w-[50px] transition-all duration-300 ease-in-out"
       >
-        <div className="flex flex-col h-full">{nav}</div>
+        <div className="flex flex-col h-full">
+          <div className="flex h-[52px] items-center justify-center px-2">
+            <a href="/super-admin" className="flex items-center gap-2 font-semibold">
+              <ShieldCheck className="h-6 w-6" />
+              <span className={isCollapsed ? "sr-only" : ""}>Super Admin</span>
+            </a>
+          </div>
+          <Separator />
+          <SuperAdminNav />
+        </div>
       </ResizablePanel>
       <ResizableHandle withHandle />
       <ResizablePanel defaultSize={80}>
