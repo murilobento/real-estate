@@ -22,31 +22,30 @@ export async function middleware(req: NextRequest) {
     }
   )
   
-  const { data: { session } } = await supabase.auth.getSession()
+  // Usa getUser() para autenticar a identidade junto ao servidor de Auth
+  const { data: { user } } = await supabase.auth.getUser()
 
-  // Se não há sessão, redireciona para o login se tentar acessar qualquer painel protegido
-  if (!session && (req.nextUrl.pathname.startsWith('/admin') || req.nextUrl.pathname.startsWith('/super-admin'))) {
+  // Sem usuário autenticado → proteger rotas
+  if (!user && (req.nextUrl.pathname.startsWith('/admin') || req.nextUrl.pathname.startsWith('/super-admin'))) {
     return NextResponse.redirect(new URL('/login', req.url))
   }
   
-  // Se há sessão, mas o usuário tenta acessar a página de login, redireciona para o painel apropriado
-  if (session && req.nextUrl.pathname === '/login') {
-    const { data: profile } = await supabase.from('profiles').select('role').eq('id', session.user.id).single();
+  // Usuário autenticado não deve acessar /login
+  if (user && req.nextUrl.pathname === '/login') {
+    const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single();
     const redirectTo = profile?.role === 'super-admin' ? '/super-admin' : '/admin';
     return NextResponse.redirect(new URL(redirectTo, req.url));
   }
 
-  // Se há sessão, verifica a rota e a função do usuário
-  if (session) {
-    const { data: profile } = await supabase.from('profiles').select('role').eq('id', session.user.id).single();
+  // Com usuário, checa role para controlar acesso entre painéis
+  if (user) {
+    const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single();
     const userRole = profile?.role;
 
-    // Se um tenant tenta acessar o painel super-admin, redireciona para /admin
     if (userRole !== 'super-admin' && req.nextUrl.pathname.startsWith('/super-admin')) {
       return NextResponse.redirect(new URL('/admin', req.url));
     }
 
-    // Se um super-admin tenta acessar o painel /admin, redireciona para /super-admin
     if (userRole === 'super-admin' && req.nextUrl.pathname.startsWith('/admin')) {
       return NextResponse.redirect(new URL('/super-admin', req.url));
     }
