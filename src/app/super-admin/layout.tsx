@@ -46,6 +46,11 @@ export default function SuperAdminLayout({
               </Button>
             </SheetTrigger>
             <SheetContent side="left" className="flex flex-col p-0">
+              {/* Cabeçalho acessível para o diálogo */}
+              <div className="sr-only" aria-hidden={false}>
+                <h2 id="superadmin-mobile-menu-title">Menu de navegação</h2>
+                <p id="superadmin-mobile-menu-desc">Links e opções do painel do Super Admin</p>
+              </div>
               {nav}
             </SheetContent>
           </Sheet>

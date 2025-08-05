@@ -47,6 +47,11 @@ export default function AdminLayout({
               </Button>
             </SheetTrigger>
             <SheetContent side="left" className="flex flex-col p-0">
+              {/* Cabeçalho acessível para o diálogo */}
+              <div className="sr-only" aria-hidden={false}>
+                <h2 id="admin-mobile-menu-title">Menu de navegação</h2>
+                <p id="admin-mobile-menu-desc">Links e opções do painel do Admin</p>
+              </div>
               {nav}
             </SheetContent>
           </Sheet>

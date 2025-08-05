@@ -51,6 +51,11 @@ export const Header = () => {
                 </Button>
               </SheetTrigger>
               <SheetContent side="left" className="pr-0 pt-12">
+                {/* Cabeçalho acessível para o diálogo */}
+                <div className="sr-only" aria-hidden={false}>
+                  <h2 id="site-mobile-menu-title">Menu de navegação</h2>
+                  <p id="site-mobile-menu-desc">Links do site e contato</p>
+                </div>
                 <div className="flex flex-col space-y-4 pl-6">
                   {navLinks.map((link) => (
                     <a
