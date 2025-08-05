@@ -1,13 +1,8 @@
 import { createClient } from "@/integrations/supabase/server";
-import { revalidatePath } from "next/cache";
-import { z } from "zod";
 import { AddImobiliariaForm } from "./add-imobiliaria-form";
 import {
   Card,
   CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
 } from "@/components/ui/card";
 import {
   Table,
@@ -17,13 +12,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-
-const formSchema = z.object({
-  name: z
-    .string()
-    .min(2, { message: "O nome deve ter pelo menos 2 caracteres." }),
-  email_contato: z.string().email({ message: "E-mail de contato inválido." }),
-});
+import { ImobiliariaRowActions } from "./imobiliaria-row-actions";
 
 export default async function ImobiliariasPage() {
   const supabase = createClient();
@@ -31,28 +20,6 @@ export default async function ImobiliariasPage() {
     .from("imobiliarias")
     .select("*")
     .order("created_at", { ascending: false });
-
-  async function createImobiliaria(values: z.infer<typeof formSchema>) {
-    "use server";
-    const supabase = createClient();
-    const validatedFields = formSchema.safeParse(values);
-
-    if (!validatedFields.success) {
-      throw new Error("Dados inválidos.");
-    }
-
-    const { name, email_contato } = validatedFields.data;
-
-    const { error } = await supabase
-      .from("imobiliarias")
-      .insert({ name, email_contato });
-
-    if (error) {
-      throw new Error(error.message);
-    }
-
-    revalidatePath("/super-admin/imobiliarias");
-  }
 
   return (
     <div className="space-y-4">
@@ -63,7 +30,7 @@ export default async function ImobiliariasPage() {
             Gerencie as imobiliárias (tenants) cadastradas no sistema.
           </p>
         </div>
-        <AddImobiliariaForm createImobiliaria={createImobiliaria} />
+        <AddImobiliariaForm />
       </div>
       <Card>
         <CardContent className="p-0">
@@ -73,6 +40,7 @@ export default async function ImobiliariasPage() {
                 <TableHead>Nome</TableHead>
                 <TableHead>Email de Contato</TableHead>
                 <TableHead>Data de Criação</TableHead>
+                <TableHead className="text-right w-[80px]">Ações</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -90,11 +58,14 @@ export default async function ImobiliariasPage() {
                       }
                     )}
                   </TableCell>
+                  <TableCell className="text-right">
+                    <ImobiliariaRowActions imobiliaria={imobiliaria} />
+                  </TableCell>
                 </TableRow>
               ))}
               {imobiliarias?.length === 0 && (
                 <TableRow>
-                  <TableCell colSpan={3} className="h-24 text-center">
+                  <TableCell colSpan={4} className="h-24 text-center">
                     Nenhuma imobiliária encontrada.
                   </TableCell>
                 </TableRow>

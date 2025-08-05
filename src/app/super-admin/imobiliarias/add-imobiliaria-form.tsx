@@ -25,6 +25,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import { PlusCircle } from "lucide-react";
+import { createImobiliaria } from "./actions";
 
 const formSchema = z.object({
   name: z
@@ -35,11 +36,7 @@ const formSchema = z.object({
 
 type FormValues = z.infer<typeof formSchema>;
 
-export function AddImobiliariaForm({
-  createImobiliaria,
-}: {
-  createImobiliaria: (values: FormValues) => Promise<void>;
-}) {
+export function AddImobiliariaForm() {
   const [isOpen, setIsOpen] = useState(false);
   const [isPending, startTransition] = useTransition();
   const form = useForm<FormValues>({
@@ -79,7 +76,7 @@ export function AddImobiliariaForm({
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8 pt-4">
             <FormField
               control={form.control}
               name="name"
