@@ -5,9 +5,6 @@ import { AddImobiliariaForm } from "./add-imobiliaria-form";
 import {
   Card,
   CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
 } from "@/components/ui/card";
 import {
   Table,
@@ -48,7 +45,7 @@ export default async function ImobiliariasPage() {
       throw new Error(error.message);
     }
 
-    revalidatePath("/admin/imobiliarias");
+    revalidatePath("/super-admin/imobiliarias");
   }
 
   return (
