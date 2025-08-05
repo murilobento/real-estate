@@ -54,8 +54,8 @@ export function AddImobiliariaForm() {
         toast.success("Imobiliária criada com sucesso!");
         form.reset();
         setIsOpen(false);
-      } catch (error) {
-        toast.error("Falha ao criar imobiliária.");
+      } catch (error: any) {
+        toast.error(error.message || "Falha ao criar imobiliária.");
       }
     });
   };

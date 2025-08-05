@@ -78,8 +78,8 @@ export function ImobiliariaRowActions({ imobiliaria }: { imobiliaria: Imobiliari
         await updateImobiliaria(imobiliaria.id, values);
         toast.success("Imobiliária atualizada com sucesso!");
         setIsEditDialogOpen(false);
-      } catch (error) {
-        toast.error("Falha ao atualizar imobiliária.");
+      } catch (error: any) {
+        toast.error(error.message || "Falha ao atualizar imobiliária.");
       }
     });
   };
@@ -90,8 +90,8 @@ export function ImobiliariaRowActions({ imobiliaria }: { imobiliaria: Imobiliari
         await deleteImobiliaria(imobiliaria.id);
         toast.success("Imobiliária excluída com sucesso!");
         setIsDeleteDialogOpen(false);
-      } catch (error) {
-        toast.error("Falha ao excluir imobiliária.");
+      } catch (error: any) {
+        toast.error(error.message || "Falha ao excluir imobiliária.");
       }
     });
   };
